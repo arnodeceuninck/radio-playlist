@@ -18,7 +18,8 @@ class SpotifyPlaylistBuilder:
         playlist = self.spotify.user_playlist_create(self.spotify.me()['id'], playlist_name, public=True, description=description)
         return playlist
 
-    def add_song(self, song):
+    def add_song(self, radio_song):
+        song = radio_song.song
         track_id = self.search_for_track_id(song)
         self.spotify.playlist_add_items(self.playlist, [track_id])
         print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")

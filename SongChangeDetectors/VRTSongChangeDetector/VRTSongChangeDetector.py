@@ -1,9 +1,10 @@
 import os
 import time
-
 import requests
+from datetime import datetime
 
-from Models.Song import Song
+import Database.Util
+from Database import Song, session, RadioSong
 from SongChangeDetectors.SongChangeDetector import SongChangeDetector
 
 class VRTSongChangeDetector(SongChangeDetector):
@@ -23,22 +24,40 @@ class VRTSongChangeDetector(SongChangeDetector):
 
     def handle_new_songs(self):
         new_songs = self.query_songs()
-
-        last_song = self.get_last_submitted_song()
-        if last_song is not None:
-            new_songs = [song for song in new_songs if song.time > last_song.time]
-
-        new_songs = sorted(new_songs, key=lambda song: song.time)
+        new_songs = self.filter_new_songs(new_songs)
+        new_songs = sorted(new_songs, key=lambda song: song.radio_time)
         for new_song in new_songs:
-            self.change_handler(new_song)
+            radio_song = self.create_db_radio_song(new_song)
+            self.change_handler(radio_song)
             raise Exception("Stop here for debugging purposes")
+
+    def create_db_radio_song(self, song):
+        title = song["title"]
+        artist = song["artist"]
+
+        song = Database.Util.get_or_create_song(title, artist)
+        radio = Database.Util.get_or_create_radio(name="MNM Hits")
+        radio_song = RadioSong(radio=radio, song=song, start_time=song["startDate"], end_time=song["endDate"])
+
+        session.add(radio_song)
+        session.commit()
+
+        return radio_song
+
+    def filter_new_songs(self, songs):
+        last_radio_song = self.get_last_submitted_radio_song()
+        if last_radio_song is not None:
+            # song["startDate"] is a string, e.g. 2024-01-08T20:09:10.909Z
+            time_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+            songs = [song for song in songs if datetime.strptime(song["startDate"], time_format) > last_radio_song.start_time]
+        return songs
+
 
     def query_songs(self):
         data = self.download_data()
         song_edges = data["data"]["page"]["songs"]["paginatedItems"]["edges"]
         songs_nodes = [song["node"] for song in song_edges]
-        songs = [Song(title=song["title"], artist=song["description"], time=song["startDate"]) for song in songs_nodes]
-        return songs
+        return songs_nodes
 
     def download_data(self):
         cookies = {}
@@ -64,5 +83,5 @@ class VRTSongChangeDetector(SongChangeDetector):
         with open(path, "r") as f:
             return f.read()
 
-    def get_last_submitted_song(self):
-        return None
+    def get_last_submitted_radio_song(self):
+        return Database.Util.get_last_radio_song()

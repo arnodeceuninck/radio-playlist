@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+
 from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
 
@@ -17,5 +20,7 @@ class RadioPlaylistBuilder:
         song_change_detector.start()
 
 if __name__ == '__main__':
+    load_dotenv() # Load environment variables from .env file
+
     radio_playlist_builder = RadioPlaylistBuilder()
     radio_playlist_builder.start()
