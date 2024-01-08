@@ -1,11 +1,7 @@
-from SongChangeDetectors.SongChangeDetector import SongChangeDetector
+from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
 
-
 # from SongChangeHandlers.SongToPlaylistHandler import SongToPlaylistHandler
-
-def random_change_handler(new_songs):
-    return 1
 
 class RadioPlaylistBuilder:
     def __init__(self):
@@ -13,9 +9,11 @@ class RadioPlaylistBuilder:
 
     def start(self):
         print("RadioPlaylistBuilder started")
-        song_change_detector = VRTSongChangeDetector()
-        # song_change_detector.change_handler = SongToPlaylistHandler()
-        song_change_detector.change_handler = random_change_handler
+        playlist_builder = SpotifyPlaylistBuilder(playlist_name="MNM Hits - Live")
+        song_change_detector = VRTSongChangeDetector(
+                                    radio="mnmhits",
+                                    change_handler=playlist_builder.add_song
+                                )
         song_change_detector.start()
 
 if __name__ == '__main__':

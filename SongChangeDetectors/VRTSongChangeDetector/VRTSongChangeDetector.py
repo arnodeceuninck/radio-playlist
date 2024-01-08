@@ -1,23 +1,37 @@
 import os
+import time
+
 import requests
 
 from Models.Song import Song
 from SongChangeDetectors.SongChangeDetector import SongChangeDetector
 
 class VRTSongChangeDetector(SongChangeDetector):
-    def __init__(self, radio="mnmhits"):
+    def __init__(self, radio, change_handler):
         super().__init__()
-
+        assert change_handler is not None, "change_handler cannot be None"
+        assert callable(change_handler), "change_handler must be callable"
         assert radio in ["mnmhits", "mnm", "stubru"], "Radio not supported"
         self.radio = radio
 
     def start(self):
         print("SongChangeDetector started")
-        songs = self.query_songs()
+        while True:
+            self.handle_new_songs()
+            time.sleep(60)
+
+
+    def handle_new_songs(self):
+        new_songs = self.query_songs()
+
         last_song = self.get_last_submitted_song()
         if last_song is not None:
-            songs = [song for song in songs if song.time > last_song.time]
-        self.change_handler(new_songs=songs)
+            new_songs = [song for song in new_songs if song.time > last_song.time]
+
+        new_songs = sorted(new_songs, key=lambda song: song.time)
+        for new_song in new_songs:
+            self.change_handler(new_song)
+            raise Exception("Stop here for debugging purposes")
 
     def query_songs(self):
         data = self.download_data()
