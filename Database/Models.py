@@ -27,11 +27,11 @@ class Radio(Base):
 class RadioSong(Base):
     __tablename__ = 'radio_song'
     radio_id = Column(Integer, ForeignKey('radio.id'), primary_key=True)
-    song_id = Column(Integer, ForeignKey('songs.id'), primary_key=True)
+    song_id = Column(Integer, ForeignKey('song.id'), primary_key=True)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
 
 class PlaylistSong(Base):
     __tablename__ = 'playlist_song'
-    playlist_id = Column(Integer, ForeignKey('playlists.id'), primary_key=True)
-    song_id = Column(Integer, ForeignKey('songs.id'), primary_key=True)
+    playlist_id = Column(Integer, ForeignKey('playlist.id'), primary_key=True)
+    song_id = Column(Integer, ForeignKey('song.id'), primary_key=True)
