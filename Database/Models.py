@@ -17,6 +17,16 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     songs = relationship('Song', secondary='playlist_song')
+    spotify_id = Column(String, nullable=True)
+
+    def __str__(self):
+        return self.name
+
+    def spotify_str(self):
+        return f"spotify:playlist:{self.spotify_id}"
+
+    def length(self):
+        return len(self.songs)
 
 class Radio(Base):
     __tablename__ = 'radio'
@@ -26,10 +36,17 @@ class Radio(Base):
 
 class RadioSong(Base):
     __tablename__ = 'radio_song'
-    radio_id = Column(Integer, ForeignKey('radio.id'), primary_key=True)
-    song_id = Column(Integer, ForeignKey('song.id'), primary_key=True)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    radio_id = Column(Integer, ForeignKey('radio.id'))
+    song_id = Column(Integer, ForeignKey('song.id'))
     start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=True)
+
+    song = relationship('Song')
+    radio = relationship('Radio')
+
 
 class PlaylistSong(Base):
     __tablename__ = 'playlist_song'

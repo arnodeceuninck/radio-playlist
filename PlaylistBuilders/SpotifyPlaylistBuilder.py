@@ -1,16 +1,22 @@
 import os
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import spotipy.util
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+
+from Database import session, Playlist
+
 
 class SpotifyPlaylistBuilder:
     def __init__(self, playlist_name):
-        # TODO: use another way to authenticate: https://github.com/spotipy-dev/spotipy/issues/240
-        self.spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-        self.playlist = self.get_or_create_playlist(playlist_name)
+        scope = 'playlist-modify-public'
+        self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope)) #client_credentials_manager=SpotifyClientCredentials())
+
+        playlist_json = self.get_or_create_playlist(playlist_name)
+        self.playlist = session.query(Playlist).filter_by(spotify_id=playlist_json['id']).first()
 
 
     def get_or_create_playlist(self, playlist_name):
-        playlists = self.spotify.user_playlists('spotify') # TODO? current_user_playlists()
+        playlists = self.spotify.current_user_playlists()
         for playlist in playlists['items']:
             if playlist['name'] == playlist_name:
                 return playlist
@@ -21,15 +27,67 @@ class SpotifyPlaylistBuilder:
         # get the username from the environment variable
         username = os.environ.get('SPOTIPY_CLIENT_USERNAME') # since this doesn't work: self.spotify.me()['id']
         playlist = self.spotify.user_playlist_create(username, playlist_name, public=True, description=description)
+        self.add_playlist_in_db(playlist)
         return playlist
 
     def add_song(self, radio_song):
         song = radio_song.song
         track_id = self.search_for_track_id(song)
-        self.spotify.playlist_add_items(self.playlist, [track_id])
+        if track_id is None:
+            print(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
+            return
+        track_str = f"spotify:track:{track_id}"
+        self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
+        self.add_track_in_db(song)
+
+        if self.playlist.length() > 100:
+            self.remove_oldest_song()
+
         print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
     def search_for_track_id(self, song):
         results = self.spotify.search(q=f"track:{song.title} artist:{song.artist}", type='track', limit=1)
-        track_id = results['tracks']['items'][0]['id']
+        tracks = results['tracks']['items']
+        if len(tracks) == 0:
+            return None
+        track_id = tracks[0]['id']
+        self.add_track_id_to_song(song, track_id)
+        return track_id
+
+    def add_track_id_to_song(self, song, track_id):
+        song.spotify_id = track_id
+        session.commit()
+
+    def add_track_in_db(self, song):
+        track_id = song.spotify_id
+        playlist_id = self.playlist['id']
+        playlist = session.query(Playlist).get(playlist_id)
+        playlist.songs.append(song)
+        session.commit()
+
+    def add_playlist_in_db(self, playlist):
+        playlist_id = playlist['id']
+        playlist_name = playlist['name']
+        playlist = Playlist(name=playlist_name, spotify_id=playlist_id)
+        session.add(playlist)
+        session.commit()
+
+    def remove_oldest_song(self):
+        song = self.get_first_song_id()
+        self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(),
+                                                                   [{ "uri": song, "positions":[0] }])
+        self.remove_song_in_db(song)
+
+    def remove_song_in_db(self, song):
+        oldest_song = self.playlist.songs.filter_by(spotify_id=song).first()
+        self.playlist.songs.remove(oldest_song)
+        session.commit()
+
+    def get_first_song_id(self):
+        # get the first song in the playlist using the spotify api
+        playlist_id = self.playlist.spotify_id
+        playlist = self.spotify.playlist(playlist_id)
+        tracks = playlist['tracks']['items']
+        track = tracks[0]
+        track_id = track['track']['id']
         return track_id

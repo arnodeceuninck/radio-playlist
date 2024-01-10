@@ -1,6 +1,7 @@
 import os
 import time
 import requests
+import util
 from datetime import datetime
 
 import Database.Util
@@ -14,6 +15,7 @@ class VRTSongChangeDetector(SongChangeDetector):
         assert callable(change_handler), "change_handler must be callable"
         assert radio in ["mnmhits", "mnm", "stubru"], "Radio not supported"
         self.radio = radio
+        self.change_handler = change_handler
 
     def start(self):
         print("SongChangeDetector started")
@@ -25,19 +27,22 @@ class VRTSongChangeDetector(SongChangeDetector):
     def handle_new_songs(self):
         new_songs = self.query_songs()
         new_songs = self.filter_new_songs(new_songs)
-        new_songs = sorted(new_songs, key=lambda song: song.radio_time)
+        new_songs = sorted(new_songs, key=lambda song: datetime.strptime(song['startDate'], '%Y-%m-%dT%H:%M:%S.%fZ'))
         for new_song in new_songs:
+            print(f"New song: {new_song['title']} - {new_song['description']}")
             radio_song = self.create_db_radio_song(new_song)
             self.change_handler(radio_song)
-            raise Exception("Stop here for debugging purposes")
+            # raise Exception("Stop here for debugging purposes")
 
     def create_db_radio_song(self, song):
         title = song["title"]
-        artist = song["artist"]
+        artist = song["description"]
+        start = util.str_to_time(song["startDate"])
+        end = util.str_to_time(song["endDate"])
 
         song = Database.Util.get_or_create_song(title, artist)
         radio = Database.Util.get_or_create_radio(name="MNM Hits")
-        radio_song = RadioSong(radio=radio, song=song, start_time=song["startDate"], end_time=song["endDate"])
+        radio_song = RadioSong(radio_id=radio.id, song_id=song.id, start_time=start, end_time=end)
 
         session.add(radio_song)
         session.commit()
@@ -47,9 +52,7 @@ class VRTSongChangeDetector(SongChangeDetector):
     def filter_new_songs(self, songs):
         last_radio_song = self.get_last_submitted_radio_song()
         if last_radio_song is not None:
-            # song["startDate"] is a string, e.g. 2024-01-08T20:09:10.909Z
-            time_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-            songs = [song for song in songs if datetime.strptime(song["startDate"], time_format) > last_radio_song.start_time]
+            songs = [song for song in songs if util.str_to_time(song["startDate"]) > last_radio_song.start_time]
         return songs
 
 
