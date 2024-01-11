@@ -9,6 +9,8 @@ class Song(Base):
     artist = Column(String, nullable=False)
     spotify_id = Column(String, nullable=True)
 
+    radios = relationship('RadioSong', back_populates='song')
+
     def __str__(self):
         return f"{self.title} - {self.artist}"
 
@@ -31,7 +33,7 @@ class Radio(Base):
     __tablename__ = 'radio'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    songs = relationship('Song', secondary='radio_song')
+    songs = relationship('RadioSong', back_populates='radio')
 
 class RadioSong(Base):
     __tablename__ = 'radio_song'
@@ -43,5 +45,6 @@ class RadioSong(Base):
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=True)
 
-    song = relationship('Song')
-    radio = relationship('Radio')
+    song = relationship('Song', back_populates='radios')
+    radio = relationship('Radio', back_populates='songs')
+
