@@ -45,7 +45,7 @@ class SpotifyPlaylistBuilder:
         print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
     def search_for_track_id(self, song):
-        results = self.spotify.search(q=f"track:{song.title} artist:{song.artist}", type='track', limit=1)
+        results = self.spotify.search(q=f"{song.title} {song.artist}", type='track', limit=1)
         tracks = results['tracks']['items']
         if len(tracks) == 0:
             return None
