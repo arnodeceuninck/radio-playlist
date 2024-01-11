@@ -23,7 +23,7 @@ class SpotifyPlaylistBuilder:
         return self.create_playlist(playlist_name)
 
     def create_playlist(self, playlist_name):
-        description = "The music of live radio, with the power of Spotify. I'm not affiliated with the radio station."
+        description = "The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist. I'm not affiliated with the radio station."
         # get the username from the environment variable
         username = os.environ.get('SPOTIPY_CLIENT_USERNAME') # since this doesn't work: self.spotify.me()['id']
         playlist = self.spotify.user_playlist_create(username, playlist_name, public=True, description=description)
@@ -38,10 +38,8 @@ class SpotifyPlaylistBuilder:
             return
         track_str = f"spotify:track:{track_id}"
         self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
-        self.add_track_in_db(song)
 
-        if self.playlist.length() > 100:
-            self.remove_oldest_song()
+        self.remove_oldest_song_if_needed()
 
         print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
@@ -58,13 +56,6 @@ class SpotifyPlaylistBuilder:
         song.spotify_id = track_id
         session.commit()
 
-    def add_track_in_db(self, song):
-        track_id = song.spotify_id
-        playlist_id = self.playlist['id']
-        playlist = session.query(Playlist).get(playlist_id)
-        playlist.songs.append(song)
-        session.commit()
-
     def add_playlist_in_db(self, playlist):
         playlist_id = playlist['id']
         playlist_name = playlist['name']
@@ -72,22 +63,25 @@ class SpotifyPlaylistBuilder:
         session.add(playlist)
         session.commit()
 
-    def remove_oldest_song(self):
+    def remove_oldest_song_if_needed(self):
         song = self.get_first_song_id()
+
+        if song is None:
+            return
+
         self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(),
                                                                    [{ "uri": song, "positions":[0] }])
         self.remove_song_in_db(song)
 
-    def remove_song_in_db(self, song):
-        oldest_song = self.playlist.songs.filter_by(spotify_id=song).first()
-        self.playlist.songs.remove(oldest_song)
-        session.commit()
-
-    def get_first_song_id(self):
+    def get_song_id_to_remove(self):
         # get the first song in the playlist using the spotify api
         playlist_id = self.playlist.spotify_id
         playlist = self.spotify.playlist(playlist_id)
         tracks = playlist['tracks']['items']
+
+        if len(tracks) < 101:
+            return None
+
         track = tracks[0]
         track_id = track['track']['id']
         return track_id

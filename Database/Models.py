@@ -16,7 +16,6 @@ class Playlist(Base):
     __tablename__ = 'playlist'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    songs = relationship('Song', secondary='playlist_song')
     spotify_id = Column(String, nullable=True)
 
     def __str__(self):
@@ -46,9 +45,3 @@ class RadioSong(Base):
 
     song = relationship('Song')
     radio = relationship('Radio')
-
-
-class PlaylistSong(Base):
-    __tablename__ = 'playlist_song'
-    playlist_id = Column(Integer, ForeignKey('playlist.id'), primary_key=True)
-    song_id = Column(Integer, ForeignKey('song.id'), primary_key=True)
