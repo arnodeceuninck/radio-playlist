@@ -6,7 +6,7 @@ class Song(Base):
     __tablename__ = 'song'
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, nullable=False)
-    artist = Column(String, nullable=False)
+    artist = Column(String, nullable=True)
     spotify_id = Column(String, nullable=True)
 
     radios = relationship('RadioSong', back_populates='song')

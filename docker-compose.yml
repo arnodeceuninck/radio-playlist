@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mnmhits:
+    build: .
+    command: python main.py --playlist "MNM Hits - Live" --radio "mnmhits"
+    restart: always
+    volumes:
+      - ./radio_playlist.db:/app/radio_playlist.db
+
+  mnm:
+    build: .
+    command: python main.py --playlist "MNM - Live" --radio "mnm"
+    restart: always
+    volumes:
+      - ./radio_playlist.db:/app/radio_playlist.db
+
+  stubru:
+    build: .
+    command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "stubru"
+    restart: always
+    volumes:
+      - ./radio_playlist.db:/app/radio_playlist.db

@@ -1,0 +1,12 @@
+[Unit]
+Description=Docker Compose Service for Radio Playlist
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/usr/local/bin/docker-compose -f /path/to/your/docker-compose.yml up -d
+ExecStop=/usr/local/bin/docker-compose -f /path/to/your/docker-compose.yml down
+WorkingDirectory=/path/to/your/project
+
+[Install]
+WantedBy=default.target

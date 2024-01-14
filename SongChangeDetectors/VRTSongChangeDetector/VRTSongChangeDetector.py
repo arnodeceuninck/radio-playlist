@@ -8,13 +8,20 @@ import Database.Util
 from Database import Song, session, RadioSong
 from SongChangeDetectors.SongChangeDetector import SongChangeDetector
 
+radios = {
+    "mnm": "MNM",
+    "mnmhits": "MNM Hits",
+    "stubru": "Studio Brussel (StuBru)"
+}
+
 class VRTSongChangeDetector(SongChangeDetector):
     def __init__(self, radio, change_handler):
         super().__init__()
         assert change_handler is not None, "change_handler cannot be None"
         assert callable(change_handler), "change_handler must be callable"
-        assert radio in ["mnmhits", "mnm", "stubru"], "Radio not supported"
+        assert radio in radios, f"radio must be one of {radios.keys()}"
         self.radio = radio
+        self.radio_name = radios[self.radio]
         self.change_handler = change_handler
 
     def start(self):
@@ -41,7 +48,7 @@ class VRTSongChangeDetector(SongChangeDetector):
         end = util.str_to_time(song["endDate"])
 
         song = Database.Util.get_or_create_song(title, artist)
-        radio = Database.Util.get_or_create_radio(name="MNM Hits")
+        radio = Database.Util.get_or_create_radio(name=self.radio_name)
         radio_song = RadioSong(radio_id=radio.id, song_id=song.id, start_time=start, end_time=end)
 
         session.add(radio_song)
@@ -87,4 +94,4 @@ class VRTSongChangeDetector(SongChangeDetector):
             return f.read()
 
     def get_last_submitted_radio_song(self):
-        return Database.Util.get_last_radio_song()
+        return Database.Util.get_last_radio_song(self.radio_name)

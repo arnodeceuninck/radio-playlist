@@ -38,9 +38,10 @@ class SpotifyPlaylistBuilder:
             print(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
             return
         track_str = f"spotify:track:{track_id}"
-        self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
 
         self.remove_oldest_song_if_needed()
+
+        self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
 
         print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
@@ -72,7 +73,6 @@ class SpotifyPlaylistBuilder:
 
         self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(),
                                                                    [{ "uri": song, "positions":[0] }])
-        self.remove_song_in_db(song)
 
     def get_song_id_to_remove(self):
         # get the first song in the playlist using the spotify api
@@ -80,9 +80,7 @@ class SpotifyPlaylistBuilder:
         playlist = self.spotify.playlist(playlist_id)
         tracks = playlist['tracks']['items']
 
-        if len(tracks) < 101:
-            return None
-
-        track = tracks[0]
-        track_id = track['track']['id']
-        return track_id
+        if len(tracks) > 99:
+            track = tracks[0]
+            track_id = track['track']['id']
+            return track_id

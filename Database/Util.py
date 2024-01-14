@@ -1,8 +1,8 @@
 from Database import Song, RadioSong, session, Radio
 from sqlalchemy import desc, column
 
-def get_last_radio_song():
-    return session.query(RadioSong).order_by(desc(RadioSong.start_time)).first()
+def get_last_radio_song(radio_name):
+    return session.query(RadioSong).join(Radio).filter(Radio.name == radio_name).order_by(desc(RadioSong.start_time)).first()
 
 def get_or_create_song(title, artist):
     song = session.query(Song).filter_by(title=title, artist=artist).first()
