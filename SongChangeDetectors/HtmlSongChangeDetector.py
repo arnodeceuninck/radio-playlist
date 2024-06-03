@@ -23,6 +23,8 @@ class HtmlSongChangeDetector(SongChangeDetector):
     def __init__(self, change_handler, radio_name):
         super().__init__(change_handler)
         self.radio_name = radio_name
+        country, title = radio_name.split(".")
+        self.radio_url = f"https://onlineradiobox.com/{country}/{title}/playlist/"
 
     def start(self):
         print("SongChangeDetector started")
@@ -76,7 +78,7 @@ class HtmlSongChangeDetector(SongChangeDetector):
             cols = row.find_all("td")
             time = cols[0].find("span").text
             song = cols[1].find("a").text if cols[1].find("a") else cols[1].text
-            if song == "Ad break\n\t":
+            if song == "Ad break\n\t" or " - " not in song:
                 continue
             artist, title = map(str.strip, song.split(" - "))
 

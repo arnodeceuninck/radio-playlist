@@ -14,7 +14,7 @@ class SpotifyPlaylistBuilder:
         playlist_json = self.get_or_create_playlist(playlist_name)
         self.playlist = session.query(Playlist).filter_by(spotify_id=playlist_json['id']).first()
 
-        # assert self.playlist is not None, f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found in database. Please remove the playlist from Spotify and restart the program."
+        assert self.playlist is not None, f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found in database. Please remove the playlist from Spotify and restart the program."
 
 
     def get_or_create_playlist(self, playlist_name):
