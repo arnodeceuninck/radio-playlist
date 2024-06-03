@@ -16,10 +16,8 @@ services:
 
   mnmhits:
     build: .
-    command: python main.py --playlist "MNM Hits - Live" --radio "mnmhits"
+    command: python main.py --playlist "MNM Hits - Live" --radio "be.mnmhits"
     restart: always
-    volumes:
-      - ./radio_playlist.db:/app/radio_playlist.db
     depends_on:
       - postgres
     networks:
@@ -27,10 +25,8 @@ services:
 
   mnm:
     build: .
-    command: python main.py --playlist "MNM - Live" --radio "mnm"
+    command: python main.py --playlist "MNM - Live" --radio "be.mnm"
     restart: always
-    volumes:
-      - ./radio_playlist.db:/app/radio_playlist.db
     depends_on:
       - postgres
     networks:
@@ -38,10 +34,8 @@ services:
 
   stubru:
     build: .
-    command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "stubru"
+    command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "be.studiobrussel"
     restart: always
-    volumes:
-      - ./radio_playlist.db:/app/radio_playlist.db
     depends_on:
       - postgres
     networks:
