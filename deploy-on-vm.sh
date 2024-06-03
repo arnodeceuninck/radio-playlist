@@ -29,5 +29,7 @@ cd radio-playlist
 
 # nano .cache-hgtr2ebpv2wtg8ep2cmrct9xw
 # add the contents of your .cache-hgtr2ebpv2wtg8ep2cmrct9xw file from your local machine
+mkdir -p /root/radio-playlist/data
 
 docker compose build
+docker compose up

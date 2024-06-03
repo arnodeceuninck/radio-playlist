@@ -61,8 +61,7 @@ class HtmlSongChangeDetector(SongChangeDetector):
 
 
     def query_songs(self):
-        url = "https://onlineradiobox.com/be/willy/playlist/?cs=be.willy"
-        response = requests.get(url)
+        response = requests.get(self.radio_url)
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find("table", attrs={"class": "tablelist-schedule"})
         rows = table.find_all("tr")
