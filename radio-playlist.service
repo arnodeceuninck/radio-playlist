@@ -4,9 +4,10 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-ExecStart=/usr/local/bin/docker-compose -f /path/to/your/docker-compose.yml up -d
-ExecStop=/usr/local/bin/docker-compose -f /path/to/your/docker-compose.yml down
-WorkingDirectory=/path/to/your/project
+# do not forget to build first
+ExecStart=/usr/bin/docker compose -f /root/radio-playlist/docker-compose.yml up
+ExecStop=/usr/bin/docker compose -f /root/radio-playlist/docker-compose.yml down
+WorkingDirectory=/root/radio-playlist
 
 [Install]
 WantedBy=default.target
