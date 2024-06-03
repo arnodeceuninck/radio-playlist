@@ -3,3 +3,4 @@ SQLAlchemy==2.0.25
 python-dotenv==1.0.0
 alembic==1.13.1
 beautifulsoup4==4.12.3
+psycopg2=2.9.9
