@@ -9,7 +9,7 @@ from Database import session, Playlist
 class SpotifyPlaylistBuilder:
     def __init__(self, playlist_name):
         scope = 'playlist-modify-public'
-        self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope)) #client_credentials_manager=SpotifyClientCredentials())
+        self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False)) #client_credentials_manager=SpotifyClientCredentials())
 
         playlist_json = self.get_or_create_playlist(playlist_name)
         self.playlist = session.query(Playlist).filter_by(spotify_id=playlist_json['id']).first()

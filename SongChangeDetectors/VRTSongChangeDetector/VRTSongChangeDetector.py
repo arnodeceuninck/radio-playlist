@@ -16,13 +16,10 @@ radios = {
 
 class VRTSongChangeDetector(SongChangeDetector):
     def __init__(self, radio, change_handler):
-        super().__init__()
-        assert change_handler is not None, "change_handler cannot be None"
-        assert callable(change_handler), "change_handler must be callable"
+        super().__init__(change_handler)
         assert radio in radios, f"radio must be one of {radios.keys()}"
         self.radio = radio
         self.radio_name = radios[self.radio]
-        self.change_handler = change_handler
 
     def start(self):
         print("SongChangeDetector started")
@@ -65,20 +62,24 @@ class VRTSongChangeDetector(SongChangeDetector):
 
     def query_songs(self):
         data = self.download_data()
-        song_edges = data["data"]["page"]["songs"]["paginatedItems"]["edges"]
+        song_edges = data["data"]["component"]["components"][0]["paginatedItems"]["edges"]
         songs_nodes = [song["node"] for song in song_edges]
         return songs_nodes
 
     def download_data(self):
         cookies = {}
-        headers = {}
+        headers = {
+            'x-vrt-client-name': 'WEB',
+        }
 
-        page_id = f'/vrtnu/livestream/audio/{self.radio}.model.json'
+        # page_id = f'/vrtnu/livestream/audio/{self.radio}.model.json'
         json_data = {
             'query': self.get_query_str(),
-            'operationName': 'Livestream',
+            # 'operationName': 'Livestream',
+            'operationName': 'component',
             'variables': {
-                'pageId': page_id,
+                # 'pageId': page_id,
+                'componentId': '#Y25pLWFsc3BnfHBsYXlsaXN0I21ubWhpdHM='
             },
         }
 

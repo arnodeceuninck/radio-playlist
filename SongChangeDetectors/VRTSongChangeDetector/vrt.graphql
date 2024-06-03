@@ -1,60 +1,74 @@
-query Livestream($pageId: ID!, $lazyItemCount: Int = 100, $after: ID, $before: ID) {
-    page(id: $pageId) {
-        ... on IPage {
-            id
-            title
-            permalink
-            ... on AudioLivestreamPage {
-                description
-                songs {
-                    __typename
-                    ...paginatedTileListFragment
-                }
-                livestream {
-                    id
-                    brand
-                    artist
-                    author
-                    songTitle
-                    title
-                    __typename
-                }
-                __typename
-            }
-            __typename
+query component($componentId: ID!, $lazyItemCount: Int = 100, $after: ID, $before: ID) {
+  component(id: $componentId) {
+    __typename
+    ... on ContainerNavigationItem {
+      __typename
+      objectId
+      componentId
+      title
+      components {
+        __typename
+        ... on PaginatedTileList {
+          ...basicPaginatedTileListFragment
+          __typename
         }
+        ... on StaticTileList {
+          ...basicStaticTileListFragment
+          __typename
+        }
+        ... on ElectronicProgramGuideSchedule {
+          ...epgFragment
+          __typename
+        }
+        ... on Chat {
+          __typename
+          chatId
+          expires
+          objectId
+          ...componentTrackingDataFragment
+        }
+        ... on Text {
+          ...textFragment
+          __typename
+        }
+        ... on PresentersList {
+          __typename
+          objectId
+          presenters {
+            title
+            __typename
+          }
+        }
+        ... on NoContent {
+          ...noContentFragment
+          __typename
+        }
+      }
     }
-}
-
-fragment metaFragment on MetaDataItem {
-  __typename
-  type
-  value
-  shortValue
-  longValue
+  }
 }
 fragment actionFragment on Action {
   __typename
   ... on FavoriteAction {
-    __typename
     favorite
     id
     programUrl
     programWhatsonId
     title
+    __typename
   }
   ... on ListDeleteAction {
-    __typename
     listName
     id
     listId
     title
+    __typename
   }
   ... on ListTileDeletedAction {
-    __typename
     listName
     id
     listId
+    __typename
   }
   ... on PodcastEpisodeListenAction {
     id: audioId
@@ -107,6 +121,7 @@ fragment actionFragment on Action {
     streamId
     livestreamPageLink
     startDate
+    startOver
     endDate
     __typename
   }
@@ -114,28 +129,33 @@ fragment actionFragment on Action {
     streamId
     livestreamPageLink
     startDate
+    startOver
     endDate
     __typename
   }
 }
 fragment actionItemFragment on ActionItem {
   __typename
-  id: objectId
+  objectId
   accessibilityLabel
   action {
     ...actionFragment
     __typename
   }
   active
-  analytics {
-    __typename
-    eventId
-    interaction
-    interactionDetail
-    pageProgrambrand
-  }
   icon
   iconPosition
+  icons {
+    __typename
+    position
+    ... on DesignSystemIcon {
+      value {
+        name
+        __typename
+      }
+      __typename
+    }
+  }
   mode
   objectId
   title
@@ -155,21 +175,16 @@ fragment componentTrackingDataFragment on IComponent {
     __typename
   }
 }
-fragment brandLogosFragment on Logo {
-  colorOnColor
-  height
-  mono
-  primary
-  type
-  width
-}
-fragment imageFragment on Image {
+fragment noContentFragment on NoContent {
+  __typename
   objectId
-  id: objectId
-  alt
   title
-  focalPoint
-  templateUrl
+  text
+  noContentType
+  actionItems {
+    ...actionItemFragment
+    __typename
+  }
 }
 fragment tileFragment on Tile {
   ... on IIdentifiable {
@@ -177,15 +192,19 @@ fragment tileFragment on Tile {
     objectId
   }
   ... on IComponent {
-    title
-    componentType
     ...componentTrackingDataFragment
     __typename
   }
   ... on ITile {
+    description
     title
+    active
     action {
       ...actionFragment
+      __typename
+    }
+    actionItems {
+      ...actionItemFragment
       __typename
     }
     image {
@@ -222,50 +241,38 @@ fragment tileFragment on Tile {
     __typename
   }
   ... on ContentTile {
-    id
-    title
     brand
     brandLogos {
       ...brandLogosFragment
       __typename
     }
-    active
     __typename
   }
   ... on BannerTile {
-    id
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
     compactLayout
     backgroundColor
     textTheme
-    active
     brand
     brandLogos {
       ...brandLogosFragment
       __typename
     }
     ctaText
-    description
     passUserIdentity
     titleArt {
-      id: objectId
+      objectId
       templateUrl
       __typename
     }
     __typename
   }
   ... on EpisodeTile {
-    id
     description
     formattedDuration
-    active
     available
     chapterStart
-    actionItems {
-      ...actionItemFragment
+    action {
+      ...actionFragment
       __typename
     }
     playAction: watchAction {
@@ -277,10 +284,10 @@ fragment tileFragment on Tile {
     }
     episode {
       __typename
-      id
+      objectId
       program {
         __typename
-        id
+        objectId
         link
       }
     }
@@ -288,15 +295,12 @@ fragment tileFragment on Tile {
     __typename
   }
   ... on PodcastEpisodeTile {
-    id
-    description
     formattedDuration
-    active
     available
     programLink: podcastEpisode {
-      id
+      objectId
       podcastProgram {
-        id
+        objectId
         link
         __typename
       }
@@ -309,36 +313,17 @@ fragment tileFragment on Tile {
       completed
       __typename
     }
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
     __typename
   }
   ... on PodcastProgramTile {
-    id
     link
-    description
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
     __typename
   }
   ... on ProgramTile {
-    id
-    description
     link
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
     __typename
   }
   ... on AudioLivestreamTile {
-    id
-    description
-    active
     brand
     brandsLogos {
       brand
@@ -352,13 +337,10 @@ fragment tileFragment on Tile {
     __typename
   }
   ... on LivestreamTile {
-    id
-    active
     description
     __typename
   }
   ... on ButtonTile {
-    title
     icon
     iconPosition
     mode
@@ -369,84 +351,65 @@ fragment tileFragment on Tile {
       ...actionFragment
       __typename
     }
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
-    active
     available
     epgDuration
-    componentType
-    description
     formattedDuration
-    id: objectId
-    image {
-      ...imageFragment
-      __typename
-    }
-    objectId
-    primaryMeta {
-      ...metaFragment
-      __typename
-    }
     thumbnailMeta {
       ...metaFragment
       __typename
     }
-    title
     ...componentTrackingDataFragment
     __typename
   }
   ... on SongTile {
-    id
-    title
-    description
     startDate
     formattedStartDate
     endDate
     __typename
   }
   ... on RadioProgramTile {
-    id
+    objectId
     __typename
   }
 }
-fragment paginatedTileListFragment on PaginatedTileList {
+fragment metaFragment on MetaDataItem {
   __typename
-  id: objectId
+  type
+  value
+  shortValue
+  longValue
+}
+fragment imageFragment on Image {
+  __typename
+  objectId
+  alt
+  title
+  focalPoint
+  templateUrl
+}
+fragment brandLogosFragment on Logo {
+  colorOnColor
+  height
+  mono
+  primary
+  type
+  width
+}
+fragment textFragment on Text {
+  __typename
+  objectId
+  html
+}
+fragment basicPaginatedTileListFragment on PaginatedTileList {
+  __typename
   objectId
   listId
-  actionItems {
-    ...actionItemFragment
-    __typename
-  }
-  bannerSize
-  componentType
   displayType
   expires
   tileVariant
-  header {
-    actionItems {
-      ...actionItemFragment
-      __typename
-    }
-    brand
-    brandLogos {
-      ...brandLogosFragment
-      __typename
-    }
-    ctaText
-    description
-    image {
-      ...imageFragment
-      __typename
-    }
-    type
-    compactLayout
-    backgroundColor
-    textTheme
-    __typename
-  }
+  tileContentType
+  tileOrientation
+  title
   paginatedItems(first: $lazyItemCount, after: $after, before: $before) {
     __typename
     edges {
@@ -465,17 +428,47 @@ fragment paginatedTileListFragment on PaginatedTileList {
       startCursor
     }
   }
-  sort {
-    icon
-    order
-    title
+  ... on IComponent {
+    ...componentTrackingDataFragment
     __typename
   }
+}
+fragment basicStaticTileListFragment on StaticTileList {
+  __typename
+  objectId
+  listId
+  displayType
+  expires
+  tileVariant
   tileContentType
   tileOrientation
   title
+  items {
+    ...tileFragment
+    __typename
+  }
   ... on IComponent {
     ...componentTrackingDataFragment
+    __typename
+  }
+}
+fragment epgFragment on ElectronicProgramGuideSchedule {
+  __typename
+  objectId
+  expires
+  current {
+    tile {
+      ...tileFragment
+      __typename
+    }
+    __typename
+  }
+  next {
+    ...basicPaginatedTileListFragment
+    __typename
+  }
+  previous {
+    ...basicPaginatedTileListFragment
     __typename
   }
 }
