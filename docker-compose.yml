@@ -13,6 +13,9 @@ services:
     #   - POSTGRES_DB=...
     networks:
         - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
 
   mnmhits:
     build: .
