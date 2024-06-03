@@ -32,5 +32,5 @@ if __name__ == '__main__':
     # radio_playlist_builder = RadioPlaylistBuilder(playlist_name=args.playlist, radio=args.radio)
     # radio_playlist_builder = RadioPlaylistBuilder(playlist_name='Studio Brussel (StuBru) - Live', radio='stubru')
     # radio_playlist_builder = RadioPlaylistBuilder(playlist_name='MNM Hits - Live', radio='mnmhits')
-    radio_playlist_builder = RadioPlaylistBuilder(playlist_name='Willy Radio - Live', radio='be.willy')
+    # radio_playlist_builder = RadioPlaylistBuilder(playlist_name='Willy Radio - Live', radio='be.willy')
     radio_playlist_builder.start()
