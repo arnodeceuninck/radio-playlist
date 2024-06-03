@@ -25,6 +25,9 @@ services:
       - postgres
     networks:
         - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
 
   mnm:
     build: .
@@ -34,6 +37,9 @@ services:
       - postgres
     networks:
         - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
 
   stubru:
     build: .
@@ -43,6 +49,22 @@ services:
       - postgres
     networks:
         - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
+
+
+  willy:
+    build: .
+    command: python main.py --playlist "Willy Radio - Live" --radio "be.willy"
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+        - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
 
 
 volumes:
