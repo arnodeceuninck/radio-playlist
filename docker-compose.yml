@@ -18,54 +18,32 @@ services:
       - path: ./.env
         required: true
 
-  mnmhits:
+  x-radio-service: &radio-service
     build: .
-    command: python main.py --playlist "MNM Hits - Live" --radio "be.mnmhits"
     restart: always
     depends_on:
       - postgres
     networks:
-        - postgres-db-network
+      - postgres-db-network
     env_file:
       - path: ./.env
         required: true
+
+  mnmhits:
+    <<: *radio-service
+    command: python main.py --playlist "MNM Hits - Live" --radio "be.mnmhits"
 
   mnm:
-    build: .
+    <<: *radio-service
     command: python main.py --playlist "MNM - Live" --radio "be.mnm"
-    restart: always
-    depends_on:
-      - postgres
-    networks:
-        - postgres-db-network
-    env_file:
-      - path: ./.env
-        required: true
 
   stubru:
-    build: .
+    <<: *radio-service
     command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "be.studiobrussel"
-    restart: always
-    depends_on:
-      - postgres
-    networks:
-        - postgres-db-network
-    env_file:
-      - path: ./.env
-        required: true
-
 
   willy:
-    build: .
+    <<: *radio-service
     command: python main.py --playlist "Willy Radio - Live" --radio "be.willy"
-    restart: always
-    depends_on:
-      - postgres
-    networks:
-        - postgres-db-network
-    env_file:
-      - path: ./.env
-        required: true
 
 
 volumes:
