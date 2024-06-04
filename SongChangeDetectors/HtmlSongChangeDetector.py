@@ -77,9 +77,12 @@ class HtmlSongChangeDetector(SongChangeDetector):
             cols = row.find_all("td")
             time = cols[0].find("span").text
             song = cols[1].find("a").text if cols[1].find("a") else cols[1].text
-            if song == "Ad break\n\t" or " - " not in song or song == "MNM hits" or song  == "MNM":
+            if song == "Ad break\n\t" or " - " not in song:
                 continue
             artist, title = map(str.strip, song.split(" - "))
+
+            if artist == "MNM hits" or artist  == "MNM":
+                continue
 
             # create a SimpleSongPlay object
             simple_song_play = SimpleSongPlay()
