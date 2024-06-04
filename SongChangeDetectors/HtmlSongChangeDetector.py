@@ -79,15 +79,20 @@ class HtmlSongChangeDetector(SongChangeDetector):
             song = cols[1].find("a").text if cols[1].find("a") else cols[1].text
             if song == "Ad break\n\t" or " - " not in song:
                 continue
-            artist, title = map(str.strip, song.split(" - "))
+
+            # Typical song format: "ARTIST - TITLE"
+            # Some special cases, e.g. "ARTIST - BIG HIT - TITLE"
+            splitted = song.split(" - ")
+            artist = splitted[0]
+            title = splitted[-1]
 
             if artist == "MNM hits" or artist  == "MNM":
                 continue
 
             # create a SimpleSongPlay object
             simple_song_play = SimpleSongPlay()
-            simple_song_play.title = title.strip()
-            simple_song_play.artist = artist.strip()
+            simple_song_play.title = title.split()
+            simple_song_play.artist = artist.split()
 
             # change time format to today's date at the given time
             if time in ["En direct", "Live"]:
