@@ -8,10 +8,6 @@ services:
       - 5432:5432
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
-    # environment: # set in .env
-    #   - POSTGRES_PASSWORD=...
-    #   - POSTGRES_USER=...
-    #   - POSTGRES_DB=...
     networks:
         - postgres-db-network
     env_file:
@@ -44,6 +40,18 @@ services:
   willy:
     <<: *radio-service
     command: python main.py --playlist "Willy Radio - Live" --radio "be.willy"
+
+  joe:
+    <<: *radio-service
+    command: python main.py --playlist "JOE - Live" --radio "be.joe"
+
+  radio1:
+    <<: *radio-service
+    command: python main.py --playlist "Radio 1 - Live" --radio "be.r1"
+
+  ketnet:
+    <<: *radio-service
+    command: python main.py --playlist "Ketnet Hits - Live" --radio "be.ketnet"
 
 
 volumes:
