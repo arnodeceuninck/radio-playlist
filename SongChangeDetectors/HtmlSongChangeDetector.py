@@ -86,7 +86,7 @@ class HtmlSongChangeDetector(SongChangeDetector):
             artist = splitted[0]
             title = splitted[-1]
 
-            if artist == "MNM hits" or artist  == "MNM":
+            if artist == "MNM hits" or artist  == "MNM" or artist == "Radio 1":
                 continue
 
             # create a SimpleSongPlay object
