@@ -53,6 +53,9 @@ services:
     <<: *radio-service
     command: python main.py --playlist "Ketnet Hits - Live" --radio "be.ketnet"
 
+  qmusic:
+    <<: *radio-service
+    command: python main.py --playlist "Qmusic - Live" --radio "be.qmusic"
 
 volumes:
     postgres-db-volume:
