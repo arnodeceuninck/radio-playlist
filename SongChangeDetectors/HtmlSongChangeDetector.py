@@ -91,8 +91,8 @@ class HtmlSongChangeDetector(SongChangeDetector):
 
             # create a SimpleSongPlay object
             simple_song_play = SimpleSongPlay()
-            simple_song_play.title = title.split()
-            simple_song_play.artist = artist.split()
+            simple_song_play.title = title.trim()
+            simple_song_play.artist = artist.trim()
 
             # change time format to today's date at the given time
             if time in ["En direct", "Live"]:
