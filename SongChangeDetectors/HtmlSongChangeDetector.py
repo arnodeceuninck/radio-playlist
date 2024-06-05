@@ -4,6 +4,7 @@ import requests
 import util
 from datetime import datetime
 from bs4 import BeautifulSoup
+import logging
 
 import Database.Util
 from Database import Song, session, RadioSong
@@ -21,24 +22,28 @@ class SimpleSongPlay:
 
 class HtmlSongChangeDetector(SongChangeDetector):
     def __init__(self, change_handler, radio_name):
+        logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
         super().__init__(change_handler)
         self.radio_name = radio_name
         country, title = radio_name.split(".")
         self.radio_url = f"https://onlineradiobox.com/{country}/{title}/playlist/"
 
     def start(self):
-        print("SongChangeDetector started")
+        logging.info("SongChangeDetector started")
         while True:
             self.handle_new_songs()
             time.sleep(60)
 
 
     def handle_new_songs(self):
+        logging.info("Checking for new songs")
         new_songs = self.query_songs()
+        og_count = len(new_songs)
         new_songs = self.filter_new_songs(new_songs)
+        logging.info(f"Found {len(new_songs)} new songs out of {og_count} songs")
         new_songs = sorted(new_songs, key=lambda song: song.start_time)
         for new_song in new_songs:
-            print(f"New song: {new_song.title} - {new_song.artist}")
+            logging.info(f"New song: {new_song.title} - {new_song.artist}")
             radio_song = self.create_db_radio_song(new_song)
             self.change_handler(radio_song)
             # raise Exception("Stop here for debugging purposes")
@@ -50,6 +55,7 @@ class HtmlSongChangeDetector(SongChangeDetector):
 
         session.add(radio_song)
         session.commit()
+        logging.info(f"Added new song to database: {simple_song.title} - {simple_song.artist}")
 
         return radio_song
 

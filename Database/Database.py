@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 import os
+import logging
 
 Base = declarative_base()
 
@@ -16,7 +17,7 @@ def create_session():
     db_url = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
     # Create the engine and connect to the database
-    engine = create_engine(db_url, echo=True)
+    engine = create_engine(db_url)
     Base.metadata.create_all(bind=engine)
 
     # Create a session to interact with the database
@@ -27,7 +28,8 @@ def create_session():
 
 # def create_session():
 #     # Create SQLite database file (music_database.db) and tables
-#     engine = create_engine('sqlite:///radio_playlist.db', echo=True)
+#     engine = create_engine('sqlite:///radio_playlist.db')
+    
 #     Base.metadata.create_all(bind=engine)
 
 #     # Create a session to interact with the database

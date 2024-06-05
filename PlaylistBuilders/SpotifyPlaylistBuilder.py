@@ -1,6 +1,7 @@
 import os
 import spotipy
 import spotipy.util
+import logging
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from Database import session, Playlist
@@ -8,6 +9,7 @@ from Database import session, Playlist
 
 class SpotifyPlaylistBuilder:
     def __init__(self, playlist_name):
+        logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
         scope = 'playlist-modify-public'
         self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False)) #client_credentials_manager=SpotifyClientCredentials())
 
@@ -21,7 +23,9 @@ class SpotifyPlaylistBuilder:
         playlists = self.spotify.current_user_playlists()
         for playlist in playlists['items']:
             if playlist['name'] == playlist_name:
+                logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' found on Spotify with id {playlist['id']}.")
                 return playlist
+        logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. Creating new playlist.")
         return self.create_playlist(playlist_name)
 
     def create_playlist(self, playlist_name):
@@ -36,8 +40,9 @@ class SpotifyPlaylistBuilder:
         song = radio_song.song
         track_id = self.search_for_track_id(song)
         if track_id is None:
-            print(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
+            logging(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
             return
+        logging.info(f"SpotifyPlaylistBuilder: Song '{song}' found on Spotify with id {track_id}")
         track_str = f"spotify:track:{track_id}"
 
         self.remove_oldest_song_if_needed()
@@ -71,7 +76,7 @@ class SpotifyPlaylistBuilder:
 
         if song is None:
             return
-
+        logging.info(f"SpotifyPlaylistBuilder: Removing oldest song from playlist")
         self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(),
                                                                    [{ "uri": song, "positions":[0] }])
 

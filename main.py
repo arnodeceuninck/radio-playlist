@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import argparse
+import logging
 
 from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector
@@ -22,6 +23,8 @@ class RadioPlaylistBuilder:
 
 if __name__ == '__main__':
     load_dotenv()  # Load environment variables from .env file
+
+    logging.basicConfig()
 
     parser = argparse.ArgumentParser(description='Get a spotify playlist with the same songs as currently live playing on the radio.')
     parser.add_argument('--playlist', type=str, default='MNM - Live', help='Name of the playlist')
