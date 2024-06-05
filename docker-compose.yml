@@ -19,7 +19,7 @@ services:
     command: alembic upgrade head
     depends_on:
       - postgres
-    network: 
+    networks: 
       - postgres-db-network
     env_file:
       - path: ./.env
