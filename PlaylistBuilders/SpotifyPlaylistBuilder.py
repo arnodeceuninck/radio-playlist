@@ -3,6 +3,7 @@ import spotipy
 import spotipy.util
 import logging
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from difflib import SequenceMatcher
 
 from Database import session, Playlist
 
@@ -70,13 +71,38 @@ class SpotifyPlaylistBuilder:
             return song.spotify_id
         
         # if not found in the database, search on Spotify
-        results = self.spotify.search(q=f"{song.title} {song.artist}", type='track', limit=1)
+        # take three songs, search the best match
+        results = self.spotify.search(q=f"{song.title} {song.artist}", type='track', limit=3)
         tracks = results['tracks']['items']
         if len(tracks) == 0:
             return None
-        track_id = tracks[0]['id']
+        best_match_track = self.get_best_match(tracks, song)
+        track_id = best_match_track['id']
+        print(f"Best match: {best_match_track['name']} - {best_match_track['artists'][0]['name']}")
         self.add_track_id_to_song(song, track_id)
         return track_id
+    
+    def get_best_match(self, tracks, song):
+        best_match = None
+        highest_similarity = 0
+        
+        for item in tracks:
+            track_name = item['name']
+            track_artist = item['artists'][0]['name']
+            
+            title_similarity = self.get_similarity(track_name.lower(), song.title.lower())
+            artist_similarity = self.get_similarity(track_artist.lower(), song.artist.lower())
+            
+            overall_similarity = (title_similarity + artist_similarity) / 2
+            
+            if overall_similarity > highest_similarity:
+                highest_similarity = overall_similarity
+                best_match = item
+        
+        return best_match
+    
+    def get_similarity(self, s1, s2):
+        return SequenceMatcher(None, s1, s2).ratio()
 
     def add_track_id_to_song(self, song, track_id):
         song.spotify_id = track_id
