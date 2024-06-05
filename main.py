@@ -27,7 +27,7 @@ if __name__ == '__main__':
     logging.basicConfig()
 
     parser = argparse.ArgumentParser(description='Get a spotify playlist with the same songs as currently live playing on the radio.')
-    parser.add_argument('--playlist', type=str, default='MNM - Live', help='Name of the playlist')
+    parser.add_argument('--playlist', type=str, default='TST MNM - Live', help='Name of the playlist')
     parser.add_argument('--radio', type=str, default='be.mnm', help='Name of the radio (mnm, mnmhits or studiobrussel)')
 
     args = parser.parse_args()
