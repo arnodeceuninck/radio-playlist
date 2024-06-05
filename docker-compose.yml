@@ -26,52 +26,36 @@ services:
         required: true
 
   mnmhits:
-    build: .
-    restart: always
-    depends_on:
-      - postgres
-    networks:
-      - postgres-db-network
-    env_file:
-      - path: ./.env
-        required: true
+    <<: *radio-service
     command: python main.py --playlist "MNM Hits - Live" --radio "be.mnmhits"
 
   mnm:
-    build: .
-    restart: always
-    depends_on:
-      - postgres
-    networks:
-      - postgres-db-network
-    env_file:
-      - path: ./.env
-        required: true
+    <<: *radio-service
     command: python main.py --playlist "MNM - Live" --radio "be.mnm"
 
-  # stubru:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "be.studiobrussel"
+  stubru:
+    <<: *radio-service
+    command: python main.py --playlist "Studio Brussel (StuBru) - Live" --radio "be.studiobrussel"
 
-  # willy:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "Willy Radio - Live" --radio "be.willy"
+  willy:
+    <<: *radio-service
+    command: python main.py --playlist "Willy Radio - Live" --radio "be.willy"
 
-  # joe:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "JOE - Live" --radio "be.joe"
+  joe:
+    <<: *radio-service
+    command: python main.py --playlist "JOE - Live" --radio "be.joe"
 
-  # radio1:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "Radio 1 - Live" --radio "be.r1"
+  radio1:
+    <<: *radio-service
+    command: python main.py --playlist "Radio 1 - Live" --radio "be.r1"
 
-  # ketnet:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "Ketnet Hits - Live" --radio "be.ketnet"
+  ketnet:
+    <<: *radio-service
+    command: python main.py --playlist "Ketnet Hits - Live" --radio "be.ketnet"
 
-  # qmusic:
-  #   <<: *radio-service
-  #   command: python main.py --playlist "Qmusic - Live" --radio "be.qmusic"
+  qmusic:
+    <<: *radio-service
+    command: python main.py --playlist "Qmusic - Live" --radio "be.qmusic"
 
 volumes:
     postgres-db-volume:
