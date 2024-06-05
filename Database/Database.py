@@ -5,7 +5,7 @@ import logging
 
 Base = declarative_base()
 
-def create_session():
+def create_postgres_session():
     # Get the required information from the .env file
     db_host = 'postgres'
     db_port = '5432'
@@ -26,14 +26,14 @@ def create_session():
 
     return session
 
-# def create_session():
-#     # Create SQLite database file (music_database.db) and tables
-#     engine = create_engine('sqlite:///radio_playlist.db')
+def create_sqlite_session():
+    # Create SQLite database file (music_database.db) and tables
+    engine = create_engine('sqlite:///radio_playlist.db')
     
-#     Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
-#     # Create a session to interact with the database
-#     Session = sessionmaker(bind=engine)
-#     session = Session()
+    # Create a session to interact with the database
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-#     return session
+    return session

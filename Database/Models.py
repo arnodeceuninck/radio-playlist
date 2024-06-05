@@ -19,6 +19,7 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     spotify_id = Column(String, nullable=True)
+    song_count = Column(Integer, nullable=False, default=0) # have an estimation of the number of songs in the playlist, to prevent spamming the spotify api
 
     def __str__(self):
         return self.name
