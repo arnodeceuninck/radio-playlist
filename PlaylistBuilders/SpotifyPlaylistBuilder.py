@@ -57,7 +57,7 @@ class SpotifyPlaylistBuilder:
 
         
         self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
-        print(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
+        logging.info(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
         self.playlist.song_count += 1
 

@@ -14,11 +14,24 @@ services:
       - path: ./.env
         required: true
 
+  alembic-db-upgrade:
+    build: .
+    command: alembic upgrade head
+    depends_on:
+      - postgres
+    network: 
+      - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
+
+
   x-radio-service: &radio-service
     build: .
     restart: always
     depends_on:
       - postgres
+      - alembic-db-upgrade
     networks:
       - postgres-db-network
     env_file:

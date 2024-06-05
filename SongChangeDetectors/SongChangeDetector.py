@@ -1,3 +1,5 @@
+import logging
+
 """
 Listens to the radio and triggers an event when a new song starts.
 """
@@ -8,4 +10,4 @@ class SongChangeDetector:
         self.change_handler = change_handler
 
     def start(self):
-        print("SongChangeDetector started")
+        logging.info("SongChangeDetector started")

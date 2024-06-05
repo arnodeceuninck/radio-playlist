@@ -13,7 +13,7 @@ class RadioPlaylistBuilder:
         self.radio = radio
 
     def start(self):
-        print(f"RadioPlaylistBuilder started for {self.radio}")
+        logging.info(f"RadioPlaylistBuilder started for {self.radio}")
         playlist_builder = SpotifyPlaylistBuilder(playlist_name=self.playlist_name)
         song_change_detector = HtmlSongChangeDetector(
             change_handler=playlist_builder.add_song,
@@ -24,7 +24,7 @@ class RadioPlaylistBuilder:
 if __name__ == '__main__':
     load_dotenv()  # Load environment variables from .env file
 
-    logging.basicConfig()
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     parser = argparse.ArgumentParser(description='Get a spotify playlist with the same songs as currently live playing on the radio.')
     parser.add_argument('--playlist', type=str, default='TST MNM - Live', help='Name of the playlist')
