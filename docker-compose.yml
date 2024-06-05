@@ -30,8 +30,10 @@ services:
     build: .
     restart: always
     depends_on:
-      - postgres
-      - alembic-db-upgrade
+      postgres:
+        condition: service_healthy
+      alembic-db-upgrade:
+        condition: service_completed_successfully
     networks:
       - postgres-db-network
     env_file:
