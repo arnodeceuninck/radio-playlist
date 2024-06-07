@@ -12,7 +12,7 @@ class SpotifyPlaylistBuilder:
         logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
         scope = 'playlist-modify-public'
         # set retries to 0 in an attempt to fix endless hanging problem: https://github.com/spotipy-dev/spotipy/issues/913
-        self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False), retries=0) #client_credentials_manager=SpotifyClientCredentials())
+        self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False), retries=3) #client_credentials_manager=SpotifyClientCredentials())
 
         self.playlist = None
         self.playlist_map = self.load_playlists()
@@ -63,7 +63,7 @@ class SpotifyPlaylistBuilder:
         song = radio_song.song
         track_id = self.search_for_track_id(song)
         if track_id is None:
-            logging(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
+            logging.error(f"SpotifyPlaylistBuilder: Song '{song}' not found on Spotify")
             return
         logging.info(f"SpotifyPlaylistBuilder: Song '{song}' found on Spotify with id {track_id}")
         track_str = f"spotify:track:{track_id}"
