@@ -37,6 +37,9 @@ services:
         condition: service_completed_successfully
     networks:
       - postgres-db-network
+    env_file:
+      - path: ./.env
+        required: true
 
 volumes:
     postgres-db-volume:
