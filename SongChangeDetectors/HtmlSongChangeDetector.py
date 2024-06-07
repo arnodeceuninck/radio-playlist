@@ -21,12 +21,13 @@ class SimpleSongPlay:
 
 
 class HtmlSongChangeDetector(SongChangeDetector):
-    def __init__(self, change_handler, radio_name):
+    def __init__(self, change_handler, radio_name, max_songs=10):
         logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
         super().__init__(change_handler)
         self.radio_name = radio_name
         country, title = radio_name.split(".")
         self.radio_url = f"https://onlineradiobox.com/{country}/{title}/playlist/"
+        self.max_songs = max_songs
 
     def start(self):
         logging.info("SongChangeDetector started")
@@ -42,6 +43,8 @@ class HtmlSongChangeDetector(SongChangeDetector):
         new_songs = self.filter_new_songs(new_songs)
         logging.info(f"Found {len(new_songs)} new songs out of {og_count} songs")
         new_songs = sorted(new_songs, key=lambda song: song.start_time)
+        if len(new_songs) > self.max_songs:
+            new_songs = new_songs[:-self.max_songs]
         for new_song in new_songs:
             logging.info(f"New song: {new_song.title} - {new_song.artist}")
             radio_song = self.create_db_radio_song(new_song)

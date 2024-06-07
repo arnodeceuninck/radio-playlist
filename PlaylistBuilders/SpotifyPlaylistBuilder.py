@@ -7,31 +7,41 @@ from difflib import SequenceMatcher
 
 from Database import session, Playlist
 
-
 class SpotifyPlaylistBuilder:
-    def __init__(self, playlist_name, min_songs=80, max_songs=120):
+    def __init__(self, playlist_name = None, min_songs=50, max_songs=100):
         logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
         scope = 'playlist-modify-public'
         # set retries to 0 in an attempt to fix endless hanging problem: https://github.com/spotipy-dev/spotipy/issues/913
         self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False), retries=0) #client_credentials_manager=SpotifyClientCredentials())
 
-        playlist_json = self.get_or_create_playlist(playlist_name)
-        self.playlist = session.query(Playlist).filter_by(spotify_id=playlist_json['id']).first()
+        self.playlist = None
+        self.playlist_map = self.load_playlists()
+        if playlist_name is not None:
+            self.switch_playlist(playlist_name)
 
         self.min_songs = min_songs # keep the songs between min_songs and max_songs, since removing a song each time a new song is added spams the spotify api too much
         self.max_songs = max_songs
 
-        assert self.playlist is not None, f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found in database. Please remove the playlist from Spotify and restart the program."
+        assert self.max_songs <= 100, "Removing songs doesn't work for more than 100 songs in a playlist. (because it's the tracks limit of a playlist in spotify api and i didn't implement pagination yet)"
 
+
+    def switch_playlist(self, playlist_name):
+        playlist_json = self.get_or_create_playlist(playlist_name)
+        self.playlist = session.query(Playlist).filter_by(spotify_id=playlist_json['id']).first()
+        assert self.playlist is not None, f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found in database. Please remove the playlist from Spotify and restart the program."
+        return self
+    
+    def load_playlists(self):
+        playlists = self.spotify.current_user_playlists()
+        return {playlist['name']: playlist for playlist in playlists['items']}
+        
 
     def get_or_create_playlist(self, playlist_name):
-        playlists = self.spotify.current_user_playlists()
-        for playlist in playlists['items']:
-            if playlist['name'] == playlist_name:
-                logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' found on Spotify with id {playlist['id']}.")
-                return playlist
-        logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. Creating new playlist.")
-        return self.create_playlist(playlist_name)
+        if playlist_name not in self.playlist_map:
+            logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. Creating new playlist.")
+            self.create_playlist(playlist_name)
+
+        return self.playlist_map[playlist_name]
 
     def create_playlist(self, playlist_name):
         description = "The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist. I'm not affiliated with the radio station."
@@ -39,6 +49,8 @@ class SpotifyPlaylistBuilder:
         username = os.environ.get('SPOTIPY_CLIENT_USERNAME') # since this doesn't work: self.spotify.me()['id']
         playlist = self.spotify.user_playlist_create(username, playlist_name, public=True, description=description)
         self.add_playlist_in_db(playlist)
+
+        self.playlist_map[playlist_name] = playlist
 
         # Somehow this gives an unauthorized error
         # Add ../icon.jpg as playlist cover 
@@ -135,10 +147,14 @@ class SpotifyPlaylistBuilder:
             playlist_id = self.playlist.spotify_id
             # playlist = self.spotify.playlist(playlist_id)
             # tracks = playlist['tracks']['items']
-            playlist = self.spotify.playlist_items(playlist_id, limit=self.max_songs+1)
+
+            # Note that only the first 100 songs are returned if the limit is higher
+            playlist = self.spotify.playlist_items(playlist_id, limit=self.max_songs)
             tracks = playlist['items']
 
             remove_count = self.playlist.song_count - self.min_songs
+            if remove_count < 0:
+                return [], []
             remove_count = min(remove_count, len(tracks))
 
             return list([track['track']['id'] for track in tracks[:remove_count]]), list(range(0, remove_count))
