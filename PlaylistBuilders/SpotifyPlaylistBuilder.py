@@ -80,6 +80,7 @@ class SpotifyPlaylistBuilder:
     def search_for_track_id(self, song):
         # first search in the database
         if song.spotify_id is not None:
+            print("Song found in database")
             return song.spotify_id
         
         # if not found in the database, search on Spotify
