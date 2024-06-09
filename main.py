@@ -46,21 +46,21 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    # radios = {
-    #     "MNM Hits - Live Radio": "be.mnmhits",
-    #     "MNM - Live Radio": "be.mnm",
-    #     "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
-    #     "Willy Radio - Live Radio": "be.willy",
-    #     "JOE - Live Radio": "be.joe",
-    #     "Radio 1 - Live Radio": "be.r1",
-    #     "Ketnet Hits - Live Radio": "be.ketnet",
-    #     "Qmusic - Live Radio": "be.qmusic"
-    # }
-
-
     radios = {
-        "TST MNM - Live": "be.mnm",
+        "MNM Hits - Live Radio": "be.mnmhits",
+        "MNM - Live Radio": "be.mnm",
+        "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
+        "Willy Radio - Live Radio": "be.willy",
+        "JOE - Live Radio": "be.joe",
+        "Radio 1 - Live Radio": "be.r1",
+        "Ketnet Hits - Live Radio": "be.ketnet",
+        "Qmusic - Live Radio": "be.qmusic"
     }
+
+
+    # radios = {
+    #     "TST MNM - Live": "be.mnm",
+    # }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
