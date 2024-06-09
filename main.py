@@ -32,6 +32,8 @@ class MultiRadioPlaylistBuilder:
         while True:
             for radio_name, song_change_detector in self.change_detectors.items():
 
+                logging.info(f"Processing {radio_name}")
+
                 playlist_builder.switch_playlist(radio_name)
                 song_change_detector.update_change_handler(playlist_builder.add_song)
                 

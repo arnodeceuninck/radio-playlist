@@ -110,6 +110,10 @@ class SpotifyPlaylistBuilder:
             if overall_similarity > highest_similarity:
                 highest_similarity = overall_similarity
                 best_match = item
+
+        if best_match != tracks[0]:
+            matches_str = ", ".join([f"'{track['name']} - {track['artists'][0]['name']}'" for track in tracks])
+            logging.info(f"SpotifyPlaylistBuilder: Best match is not the first match for '{song}'. Options were: {matches_str}")
         
         return best_match
     
@@ -156,6 +160,8 @@ class SpotifyPlaylistBuilder:
             if remove_count < 0:
                 return [], []
             remove_count = min(remove_count, len(tracks))
+
+            print(f"Removing {remove_count} songs out of {self.playlist.song_count} songs from the playlist")
 
             return list([track['track']['id'] for track in tracks[:remove_count]]), list(range(0, remove_count))
         return [], []
