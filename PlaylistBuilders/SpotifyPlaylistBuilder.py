@@ -157,7 +157,7 @@ class SpotifyPlaylistBuilder:
             playlist = self.spotify.playlist_items(playlist_id, limit=self.max_songs)
             tracks = playlist['items']
 
-            remove_count = self.playlist.song_count - self.min_songs
+            remove_count = len(tracks) - self.min_songs
             if remove_count < 0:
                 return [], []
             remove_count = min(remove_count, len(tracks))
