@@ -80,7 +80,7 @@ class SpotifyPlaylistBuilder:
     def search_for_track_id(self, song):
         # first search in the database
         if song.spotify_id is not None:
-            print("Song found in database")
+            logging.info("Song found in database")
             return song.spotify_id
         
         # if not found in the database, search on Spotify
@@ -91,7 +91,7 @@ class SpotifyPlaylistBuilder:
             return None
         best_match_track = self.get_best_match(tracks, song)
         track_id = best_match_track['id']
-        print(f"Best match: {best_match_track['name']} - {best_match_track['artists'][0]['name']}")
+        logging.info(f"Best match: {best_match_track['name']} - {best_match_track['artists'][0]['name']}")
         self.add_track_id_to_song(song, track_id)
         return track_id
     
@@ -162,7 +162,7 @@ class SpotifyPlaylistBuilder:
                 return [], []
             remove_count = min(remove_count, len(tracks))
 
-            print(f"Removing {remove_count} songs out of {self.playlist.song_count} songs from the playlist")
+            logging.info(f"Removing {remove_count} songs out of {self.playlist.song_count} songs from the playlist")
 
             return list([track['track']['id'] for track in tracks[:remove_count]]), list(range(0, remove_count))
         return [], []

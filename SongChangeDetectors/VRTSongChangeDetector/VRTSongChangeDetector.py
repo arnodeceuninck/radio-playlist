@@ -3,6 +3,7 @@ import time
 import requests
 import util
 from datetime import datetime
+import logging
 
 import Database.Util
 from Database import Song, session, RadioSong
@@ -22,7 +23,7 @@ class VRTSongChangeDetector(SongChangeDetector):
         self.radio_name = radios[self.radio]
 
     def start(self):
-        print("SongChangeDetector started")
+        logging.info("SongChangeDetector started")
         while True:
             self.handle_new_songs()
             time.sleep(60)
@@ -33,7 +34,7 @@ class VRTSongChangeDetector(SongChangeDetector):
         new_songs = self.filter_new_songs(new_songs)
         new_songs = sorted(new_songs, key=lambda song: datetime.strptime(song['startDate'], '%Y-%m-%dT%H:%M:%S.%fZ'))
         for new_song in new_songs:
-            print(f"New song: {new_song['title']} - {new_song['description']}")
+            logging.info(f"New song: {new_song['title']} - {new_song['description']}")
             radio_song = self.create_db_radio_song(new_song)
             self.change_handler(radio_song)
             # raise Exception("Stop here for debugging purposes")
