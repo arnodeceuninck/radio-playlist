@@ -26,7 +26,7 @@ class MultiRadioPlaylistBuilder:
 
             self.change_detectors[radio_name] = song_change_detector
 
-        poll_interval_s = 90
+        poll_interval_s = 30
         poll_interval_per_radio_s = poll_interval_s / len(self.radios)
 
         while True:
