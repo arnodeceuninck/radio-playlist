@@ -38,6 +38,7 @@ class SpotifyPlaylistBuilder:
 
     def get_or_create_playlist(self, playlist_name):
         if playlist_name not in self.playlist_map:
+            raise Exception(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. All playlist should already exist in Spotify. Probably a problem with the API, try again.")
             logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. Creating new playlist.")
             self.create_playlist(playlist_name)
 
