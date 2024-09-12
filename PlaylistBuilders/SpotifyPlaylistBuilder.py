@@ -32,9 +32,20 @@ class SpotifyPlaylistBuilder:
         return self
     
     def load_playlists(self):
-        playlists = self.spotify.current_user_playlists()
-        return {playlist['name']: playlist for playlist in playlists['items']}
-        
+        # Current playlists are limited, so often the playlist is not found
+        # playlists = self.spotify.current_user_playlists()
+        # return {playlist['name']: playlist for playlist in playlists['items']}
+
+        # Instead, load all playlists based on the ids from the database.
+        db_playlists = session.query(Playlist).all()
+        playlists = {}
+        for playlist in db_playlists:
+            playlist_id = playlist.spotify_id
+            playlist_json = self.spotify.playlist(playlist_id)
+            playlists[playlist.name] = playlist_json
+
+        return playlists
+  
 
     def get_or_create_playlist(self, playlist_name):
         if playlist_name not in self.playlist_map:
