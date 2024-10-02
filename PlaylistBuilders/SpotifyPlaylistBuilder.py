@@ -1,3 +1,4 @@
+import time
 import os
 import spotipy
 import spotipy.util
@@ -56,7 +57,7 @@ class SpotifyPlaylistBuilder:
         return self.playlist_map[playlist_name]
 
     def create_playlist(self, playlist_name):
-        description = "The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist. I'm not affiliated with the radio station."
+        description = "The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist."
         # get the username from the environment variable
         username = os.environ.get('SPOTIPY_CLIENT_USERNAME') # since this doesn't work: self.spotify.me()['id']
         playlist = self.spotify.user_playlist_create(username, playlist_name, public=True, description=description)
@@ -87,6 +88,15 @@ class SpotifyPlaylistBuilder:
         self.playlist.song_count += 1
 
         self.remove_oldest_songs_if_needed()
+
+        self.set_last_update_date()
+
+    def set_last_update_date(self):
+        timestr = time.strftime("%Y-%m-%d %H:%M:%S")
+        playlist_id = self.playlist.spotify_str()
+        description = f"The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist. Last updated on {timestr}."
+        self.spotify.playlist_change_details(playlist_id, description=description)
+        
 
 
     def search_for_track_id(self, song):
