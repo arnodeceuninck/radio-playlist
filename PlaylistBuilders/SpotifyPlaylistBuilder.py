@@ -13,9 +13,11 @@ class SpotifyPlaylistBuilder:
         logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
         scope = 'playlist-modify-public'
         # set retries to 0 in an attempt to fix endless hanging problem: https://github.com/spotipy-dev/spotipy/issues/913
+        logging.info("SpotifyPlaylistBuilder: Creating Spotify client")
         self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False), retries=3) #client_credentials_manager=SpotifyClientCredentials())
 
         self.playlist = None
+        logging.info("SpotifyPlaylistBuilder: Loading playlists")
         self.playlist_map = self.load_playlists()
         if playlist_name is not None:
             self.switch_playlist(playlist_name)
@@ -50,7 +52,7 @@ class SpotifyPlaylistBuilder:
 
     def get_or_create_playlist(self, playlist_name):
         if playlist_name not in self.playlist_map:
-            raise Exception(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. All playlist should already exist in Spotify. Probably a problem with the API, try again.")
+            # raise Exception(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. All playlist should already exist in Spotify. Probably a problem with the API, try again.")
             logging.info(f"SpotifyPlaylistBuilder: Playlist '{playlist_name}' not found on Spotify. Creating new playlist.")
             self.create_playlist(playlist_name)
 

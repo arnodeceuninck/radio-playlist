@@ -8,7 +8,7 @@ Create spotify playlists from the songs currently playing on the radio.
 - Make sure docker-compose is installed
 - Build the docker images with `docker compose build`
 - Run the docker containers with `docker compose up -d`
-- Check the logs with `docker compose logs mnmhits` (or the radio name you want to check)
+- Check the logs with `docker compose logs -f --tail 100`
 - Stop the docker containers with `docker compose down`
 
 
@@ -17,3 +17,4 @@ Create spotify playlists from the songs currently playing on the radio.
 - Reload the systemd daemon with `systemctl daemon-reload`
 - Enabled the service with `systemctl enable radio-playlist.service --now`
 - Check the status of the service with `systemctl status radio-playlist.service`
+- Hosting on a small VM? Make sure to clean your logs: `journalctl --vacuum-time=10d`

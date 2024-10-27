@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import argparse
 import logging
 
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
+
 from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
@@ -37,7 +39,15 @@ class MultiRadioPlaylistBuilder:
                 playlist_builder.switch_playlist(radio_name)
                 song_change_detector.update_change_handler(playlist_builder.add_song)
                 
-                song_change_detector.handle_new_songs()
+                with ThreadPoolExecutor() as executor:
+                    future = executor.submit(song_change_detector.handle_new_songs)
+                    try:
+                        # Wait for handle_new_songs() to complete with a 60-minute timeout
+                        future.result(timeout=60 * 60)
+                    except TimeoutError:
+                        logging.warning("handle_new_songs timed out after 60 minutes")
+                        # cancel the future if you want to ensure it doesn't run further
+                        future.cancel()
                 
                 time.sleep(poll_interval_per_radio_s)
 
@@ -58,9 +68,9 @@ if __name__ == '__main__':
     }
 
 
-    # radios = {
-    #     "TST MNM - Live": "be.mnm",
-    # }
+    radios = {
+        "TST MNM - Live": "be.mnm",
+    }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
