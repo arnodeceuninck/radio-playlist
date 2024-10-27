@@ -51,9 +51,9 @@ if __name__ == '__main__':
         "MNM - Live Radio": "be.mnm",
         "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
         "Willy Radio - Live Radio": "be.willy",
-        "JOE - Live Radio": "be.joe",
-        "Radio 1 - Live Radio": "be.r1",
-        "Ketnet Hits - Live Radio": "be.ketnet",
+        # "JOE - Live Radio": "be.joe",
+        # "Radio 1 - Live Radio": "be.r1",
+        # "Ketnet Hits - Live Radio": "be.ketnet",
         "Qmusic - Live Radio": "be.qmusic"
     }
 

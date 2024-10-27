@@ -94,7 +94,7 @@ class SpotifyPlaylistBuilder:
     def set_last_update_date(self):
         timestr = time.strftime("%Y-%m-%d %H:%M:%S")
         playlist_id = self.playlist.spotify_str()
-        description = f"The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist. Last updated on {timestr}."
+        description = f"Last updated on {timestr}. The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist."
         self.spotify.playlist_change_details(playlist_id, description=description)
         
 
