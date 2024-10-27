@@ -20,6 +20,7 @@ class MultiRadioPlaylistBuilder:
         playlist_builder = SpotifyPlaylistBuilder()
 
         for radio_name, radio_id in self.radios.items():
+            logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
             song_change_detector = HtmlSongChangeDetector(
                 change_handler=playlist_builder.add_song,
                 radio_name=radio_id,
@@ -31,6 +32,7 @@ class MultiRadioPlaylistBuilder:
         poll_interval_s = 30
         poll_interval_per_radio_s = poll_interval_s / len(self.radios)
 
+        logging.info(f"Polling interval: {poll_interval_s} seconds")
         while True:
             for radio_name, song_change_detector in self.change_detectors.items():
 
@@ -68,9 +70,9 @@ if __name__ == '__main__':
     }
 
 
-    radios = {
-        "TST MNM - Live": "be.mnm",
-    }
+    # radios = {
+    #     "TST MNM - Live": "be.mnm",
+    # }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
