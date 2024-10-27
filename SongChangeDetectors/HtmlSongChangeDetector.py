@@ -5,6 +5,7 @@ import util
 from datetime import datetime
 from bs4 import BeautifulSoup
 import logging
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 import Database.Util
 from Database import Song, session, RadioSong
@@ -32,7 +33,16 @@ class HtmlSongChangeDetector(SongChangeDetector):
     def start(self):
         logging.info("SongChangeDetector started")
         while True:
-            self.handle_new_songs()
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(self.handle_new_songs)
+                try:
+                    # Wait for handle_new_songs() to complete with a 60-minute timeout
+                    future.result(timeout=60 * 60)
+                except TimeoutError:
+                    logging.warning("handle_new_songs timed out after 60 minutes")
+                    # cancel the future if you want to ensure it doesn't run further
+                    future.cancel()
+        
             time.sleep(60)
 
 
