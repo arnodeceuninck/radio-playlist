@@ -66,7 +66,13 @@ if __name__ == '__main__':
         # "JOE - Live Radio": "be.joe",
         # "Radio 1 - Live Radio": "be.r1",
         # "Ketnet Hits - Live Radio": "be.ketnet",
-        "Qmusic - Live Radio": "be.qmusic"
+        "Qmusic - Live Radio": "be.qmusic",
+
+        # Requested
+        "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
+        "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
+        "StuBru - Ik Luister Belgisch - Live Radio": "be.studiobrusselikluisterbelgisch",
+        "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
 
