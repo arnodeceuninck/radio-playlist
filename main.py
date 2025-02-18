@@ -70,8 +70,11 @@ if __name__ == '__main__':
 
         # Requested
         "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
-        "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
-        "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
+
+        # Those do not have any content on onlineradiobox
+        # "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
+        # "StuBru - Ik Luister Belgisch - Live Radio": "be.studiobrusselikluisterbelgisch",
+        # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
 
