@@ -29,7 +29,7 @@ class MultiRadioPlaylistBuilder:
 
             self.change_detectors[radio_name] = song_change_detector
 
-        poll_interval_s = 120
+        poll_interval_s = 30
         poll_interval_per_radio_s = poll_interval_s / len(self.radios)
 
         logging.info(f"Polling interval: {poll_interval_s} seconds")
@@ -69,18 +69,17 @@ if __name__ == '__main__':
         "Qmusic - Live Radio": "be.qmusic",
 
         # Requested
-        "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
-        "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
+        # "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
+        # "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
 
         # Those do not have any content on onlineradiobox
         # "StuBru - Ik Luister Belgisch - Live Radio": "be.studiobrusselikluisterbelgisch",
         # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
-
-    # radios = {
-    #     "TST MNM - Live": "be.mnm",
-    # }
+    radios = {
+        "TST MNM - Live": "be.mnm",
+    }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
