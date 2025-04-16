@@ -77,9 +77,9 @@ if __name__ == '__main__':
         # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
-    radios = {
-        "TST MNM - Live": "be.mnm",
-    }
+    # radios = {
+    #     "TST MNM - Live": "be.mnm",
+    # }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
