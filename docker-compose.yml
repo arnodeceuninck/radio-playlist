@@ -13,6 +13,8 @@ services:
     env_file:
       - path: ./.env
         required: true
+    environment:
+      - TZ=Europe/Amsterdam
 
   alembic-db-upgrade:
     build: .
@@ -24,7 +26,8 @@ services:
     env_file:
       - path: ./.env
         required: true
-
+    environment:
+      - TZ=Europe/Amsterdam
 
   radio-service:
     build: .
@@ -40,6 +43,8 @@ services:
     env_file:
       - path: ./.env
         required: true
+    environment:
+      - TZ=Europe/Amsterdam
 
 volumes:
     postgres-db-volume:
