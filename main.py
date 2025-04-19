@@ -68,7 +68,7 @@ if __name__ == '__main__':
         "MNM - Live Radio": "be.mnm",
         "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
         "Qmusic - Live Radio": "be.qmusic",
-        # "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
+        "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
 
         # Extra
         # "JOE - Live Radio": "be.joe",
@@ -78,6 +78,10 @@ if __name__ == '__main__':
         # Requested
         # "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
         # "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
+
+        # "TOPradio - TOPretroarena - Live Radio": "be.topretroarena", # will have quite some incorrect ones because of multiple dj mix sets
+        # "TOPradio - TOPtechno - Live Radio": "be.topselection", # somehow empty https://onlineradiobox.com/be/topselection/playlist/?cs=be.topselection
+        # "TOPradio - Live Radio": "be.topradio", # also empty https://onlineradiobox.com/be/topradio/playlist/?cs=be.topselection
 
         # Those do not have any content on onlineradiobox
         # "StuBru - Ik Luister Belgisch - Live Radio": "be.studiobrusselikluisterbelgisch",
