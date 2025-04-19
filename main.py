@@ -35,21 +35,24 @@ class MultiRadioPlaylistBuilder:
         logging.info(f"Polling interval: {poll_interval_s} seconds")
         while True:
             for radio_name, song_change_detector in self.change_detectors.items():
+                try:
+                    logging.info(f"Processing {radio_name}")
 
-                logging.info(f"Processing {radio_name}")
+                    playlist_builder.switch_playlist(radio_name)
+                    song_change_detector.update_change_handler(playlist_builder.add_song)
+                    
+                    with ThreadPoolExecutor() as executor:
+                        future = executor.submit(song_change_detector.handle_new_songs)
+                        try:
+                            # Wait for handle_new_songs() to complete with a 60-minute timeout
+                            future.result(timeout=60 * 60)
+                        except TimeoutError:
+                            logging.warning("handle_new_songs timed out after 60 minutes")
+                            # cancel the future if you want to ensure it doesn't run further
+                            future.cancel()
+                except Exception as e:
+                    logging.exception(f"Error processing {radio_name}: {e}")
 
-                playlist_builder.switch_playlist(radio_name)
-                song_change_detector.update_change_handler(playlist_builder.add_song)
-                
-                with ThreadPoolExecutor() as executor:
-                    future = executor.submit(song_change_detector.handle_new_songs)
-                    try:
-                        # Wait for handle_new_songs() to complete with a 60-minute timeout
-                        future.result(timeout=60 * 60)
-                    except TimeoutError:
-                        logging.warning("handle_new_songs timed out after 60 minutes")
-                        # cancel the future if you want to ensure it doesn't run further
-                        future.cancel()
                 
                 time.sleep(poll_interval_per_radio_s)
 
@@ -59,14 +62,18 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     radios = {
+
+        # Main
         "MNM Hits - Live Radio": "be.mnmhits",
         "MNM - Live Radio": "be.mnm",
         "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
-        "Willy Radio - Live Radio": "be.willy",
+        "Qmusic - Live Radio": "be.qmusic",
+        # "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
+
+        # Extra
         # "JOE - Live Radio": "be.joe",
         # "Radio 1 - Live Radio": "be.r1",
         # "Ketnet Hits - Live Radio": "be.ketnet",
-        "Qmusic - Live Radio": "be.qmusic",
 
         # Requested
         # "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
