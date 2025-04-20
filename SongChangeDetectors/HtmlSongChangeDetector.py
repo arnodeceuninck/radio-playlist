@@ -70,8 +70,13 @@ class HtmlSongChangeDetector(SongChangeDetector):
     def filter_new_songs(self, songs):
         last_radio_song = self.get_last_submitted_radio_song()
         if last_radio_song is not None:
-            songs = [song for song in songs if song.start_time > last_radio_song.start_time and song != last_radio_song]
+            songs = [song for song in songs if self.make_aware(song.start_time) > self.make_aware(last_radio_song.start_time) and song != last_radio_song]
         return songs
+
+    def make_aware(self, dt):
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=datetime.now().astimezone().tzinfo)
+        return dt
 
     def query_songs(self):
         raise NotImplementedError("Subclasses must implement query_songs")
