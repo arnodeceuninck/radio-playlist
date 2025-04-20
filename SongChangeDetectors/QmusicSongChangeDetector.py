@@ -7,10 +7,11 @@ from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector, S
 class QMusicBelgiumSongChangeDetector(HtmlSongChangeDetector):
     # https://api.qmusic.be/2.0/tracks/plays?limit=300&upto=2025-04-20T13:19:54.466Z&_station_id=qmusic_be
     # api used in https://qmusic.be/playlist
-    def __init__(self, change_handler, radio_name, max_songs=20):
+    # Note that willy uses the same API (also part op dpg)
+    def __init__(self, change_handler, radio_name, station_id="qmusic_be", base="api.qmusic.be", max_songs=20):
         super().__init__(change_handler, radio_name, max_songs)
-        self.station_id = "qmusic_be"
-        self.base_url = "https://api.qmusic.be/2.0/tracks/plays"
+        self.station_id = station_id
+        self.base_url = f"https://{base}/2.0/tracks/plays"
         self.limit = max_songs
 
 
