@@ -9,8 +9,7 @@ from SongChangeDetectors.HtmlSongChangeDetector import SimpleSongPlay, HtmlSongC
 class OnlineRadioBoxSongChangeDetector(HtmlSongChangeDetector):
     def __init__(self, change_handler, radio_name, max_songs=10):
         logging.info(f"Creating OnlineRadioBoxSongChangeDetector for {radio_name}")
-        super().__init__(change_handler, max_songs)
-        self.radio_name = radio_name
+        super().__init__(change_handler, radio_name, max_songs)
         country, title = radio_name.split(".")
         self.radio_url = f"https://onlineradiobox.com/{country}/{title}/playlist/"
 

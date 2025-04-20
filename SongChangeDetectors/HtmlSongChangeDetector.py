@@ -22,10 +22,11 @@ class SimpleSongPlay:
 
 
 class HtmlSongChangeDetector(SongChangeDetector):
-    def __init__(self, change_handler, max_songs=10):
+    def __init__(self, change_handler, radio_name, max_songs=10):
         logging.info("Creating HtmlSongChangeDetector")
         super().__init__(change_handler)
         self.max_songs = max_songs
+        self.radio_name = radio_name
 
     def start(self):
         logging.info("SongChangeDetector started")

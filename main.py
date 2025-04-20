@@ -7,26 +7,30 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector
+from SongChangeDetectors.QmusicSongChangeDetector import QMusicBelgiumSongChangeDetector
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
 from SongChangeDetectors.OnlineRadioBoxSongChangeDetector import OnlineRadioBoxSongChangeDetector
 
 class MultiRadioPlaylistBuilder:
-    def __init__(self, radios):
+    def __init__(self, radios, playlist_builder):
+        self.playlist_builder = playlist_builder
         self.radios = radios
         self.change_detectors = {}
 
     def start(self):
         logging.info(f"MultiRadioPlaylistBuilder started")
 
-        playlist_builder = SpotifyPlaylistBuilder()
-
         for radio_name, radio_id in self.radios.items():
-            logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
-            song_change_detector = OnlineRadioBoxSongChangeDetector(
-                change_handler=playlist_builder.add_song,
-                radio_name=radio_id,
-                max_songs=120
-            )
+            if isinstance(radio_id, str):
+                logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
+                song_change_detector = OnlineRadioBoxSongChangeDetector(
+                    change_handler=playlist_builder.add_song,
+                    radio_name=radio_id,
+                    max_songs=120
+                )
+            else:
+                logging.info(f"Using provided SongChangeDetector for {radio_name}")
+                song_change_detector = radio_id
 
             self.change_detectors[radio_name] = song_change_detector
 
@@ -62,13 +66,16 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+    playlist_builder = SpotifyPlaylistBuilder()
+
     radios = {
 
         # Main
         "MNM Hits - Live Radio": "be.mnmhits",
         "MNM - Live Radio": "be.mnm",
         "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
-        "Qmusic - Live Radio": "be.qmusic",
+        # "Qmusic - Live Radio": "be.qmusic",
+        "Qmusic - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
         "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
 
         # Extra
@@ -89,9 +96,9 @@ if __name__ == '__main__':
         # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
-    radios = {
-        "TST MNM - Live": "be.mnm",
-    }
+    # radios = {
+    #     "TST MNM - Live": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
+    # }
 
-    radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
+    radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios, playlist_builder=playlist_builder)
     radio_playlist_builder.start()
