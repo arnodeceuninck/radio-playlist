@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from PlaylistBuilders.SpotifyPlaylistBuilder import SpotifyPlaylistBuilder
 from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
+from SongChangeDetectors.OnlineRadioBoxSongChangeDetector import OnlineRadioBoxSongChangeDetector
 
 class MultiRadioPlaylistBuilder:
     def __init__(self, radios):
@@ -21,7 +22,7 @@ class MultiRadioPlaylistBuilder:
 
         for radio_name, radio_id in self.radios.items():
             logging.info(f"Creating HtmlSongChangeDetector for {radio_name}")
-            song_change_detector = HtmlSongChangeDetector(
+            song_change_detector = OnlineRadioBoxSongChangeDetector(
                 change_handler=playlist_builder.add_song,
                 radio_name=radio_id,
                 max_songs=120
@@ -88,9 +89,9 @@ if __name__ == '__main__':
         # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
     }
 
-    # radios = {
-    #     "TST MNM - Live": "be.mnm",
-    # }
+    radios = {
+        "TST MNM - Live": "be.mnm",
+    }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios)
     radio_playlist_builder.start()
