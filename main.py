@@ -74,10 +74,10 @@ if __name__ == '__main__':
         "MNM Hits - Live Radio": "be.mnmhits",
         "MNM - Live Radio": "be.mnm",
         "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
-        # "Qmusic - Live Radio": "be.qmusic",
-        "Qmusic - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
-        # "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
-        "Willy Radio - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Willy Radio - Live Radio", change_handler=playlist_builder.add_song, station_id="willy_be", base="api.willy.radio"),
+        "Qmusic - Live Radio": "be.qmusic",
+        #"Qmusic - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
+        "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
+        #"Willy Radio - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Willy Radio - Live Radio", change_handler=playlist_builder.add_song, station_id="willy_be", base="api.willy.radio"),
 
         # Extra
         # "JOE - Live Radio": "be.joe",
