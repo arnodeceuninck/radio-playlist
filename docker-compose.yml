@@ -12,7 +12,7 @@ services:
         - postgres-db-network
     env_file:
       - path: ./.env
-        required: true
+        required: false
     environment:
       - TZ=Europe/Amsterdam
 
@@ -25,7 +25,7 @@ services:
       - postgres-db-network
     env_file:
       - path: ./.env
-        required: true
+        required: false
     environment:
       - TZ=Europe/Amsterdam
 
@@ -42,7 +42,7 @@ services:
       - postgres-db-network
     env_file:
       - path: ./.env
-        required: true
+        required: false
     environment:
       - TZ=Europe/Amsterdam
 
