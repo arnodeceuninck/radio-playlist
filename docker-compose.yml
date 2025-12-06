@@ -9,18 +9,24 @@ services:
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     networks:
-        - postgres-db-network
+      - postgres-db-network
     env_file:
       - path: ./.env
         required: false
     environment:
       - TZ=Europe/Amsterdam
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   alembic-db-upgrade:
     build: .
     command: alembic upgrade head
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks: 
       - postgres-db-network
     env_file:
