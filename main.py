@@ -1,4 +1,5 @@
 import time
+import os
 from dotenv import load_dotenv
 import argparse
 import logging
@@ -10,6 +11,51 @@ from SongChangeDetectors.HtmlSongChangeDetector import HtmlSongChangeDetector
 from SongChangeDetectors.QmusicSongChangeDetector import QMusicBelgiumSongChangeDetector
 from SongChangeDetectors.VRTSongChangeDetector.VRTSongChangeDetector import VRTSongChangeDetector
 from SongChangeDetectors.OnlineRadioBoxSongChangeDetector import OnlineRadioBoxSongChangeDetector
+from cache_loader import load_cache_from_env
+
+def parse_radios_from_env():
+    """
+    Parse radio configuration from RADIOS environment variable.
+    
+    Format: comma-separated list of radio identifiers (e.g., "be.mnmhits,be.mnm,be.studiobrussel")
+    Each identifier will be converted to a radio name: "be.mnmhits" -> "MNM Hits - Live Radio"
+    
+    Returns:
+        dict: Dictionary mapping radio names to identifiers, or None if env var not set
+    """
+    radios_env = os.getenv('RADIOS')
+    if not radios_env:
+        return None
+    
+    radios = {}
+    radio_identifiers = [r.strip() for r in radios_env.split(',') if r.strip()]
+    
+    # Map identifiers to human-readable names
+    identifier_to_name = {
+        'be.mnmhits': 'MNM Hits - Live Radio',
+        'be.mnm': 'MNM - Live Radio',
+        'be.studiobrussel': 'Studio Brussel (StuBru) - Live Radio',
+        'be.qmusic': 'Qmusic - Live Radio',
+        'be.willy': 'Willy Radio - Live Radio',
+        'be.joe': 'JOE - Live Radio',
+        'be.r1': 'Radio 1 - Live Radio',
+        'be.ketnet': 'Ketnet Hits - Live Radio',
+        'be.studiobrusseldetijdloze': 'StuBru - De Tijdloze - Live Radio',
+        'be.studiobrusselbruut': 'StuBru - Bruut - Live Radio',
+        'be.topretroarena': 'TOPradio - TOPretroarena - Live Radio',
+        'be.topselection': 'TOPradio - TOPtechno - Live Radio',
+        'be.topradio': 'TOPradio - Live Radio',
+        'be.studiobrusselikluisterbelgisch': 'StuBru - Ik Luister Belgisch - Live Radio',
+        'be.studiobrusseluntz': 'StuBru - UNTZ - Live Radio',
+    }
+    
+    for identifier in radio_identifiers:
+        # Use predefined name if available, otherwise create a generic name
+        name = identifier_to_name.get(identifier, f"{identifier} - Live Radio")
+        radios[name] = identifier
+    
+    logging.info(f"Loaded {len(radios)} radios from RADIOS environment variable")
+    return radios
 
 class MultiRadioPlaylistBuilder:
     def __init__(self, radios, playlist_builder):
@@ -63,43 +109,20 @@ class MultiRadioPlaylistBuilder:
 
 if __name__ == '__main__':
     load_dotenv()  # Load environment variables from .env file
-
+    load_cache_from_env()
+    
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     playlist_builder = SpotifyPlaylistBuilder()
 
-    radios = {
-
-        # Main
-        "MNM Hits - Live Radio": "be.mnmhits",
-        "MNM - Live Radio": "be.mnm",
-        "Studio Brussel (StuBru) - Live Radio": "be.studiobrussel",
-        "Qmusic - Live Radio": "be.qmusic",
-        #"Qmusic - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
-        "Willy Radio - Live Radio": "be.willy", # Temporarily not available on https://onlineradiobox.com/be/willy/playlist/?cs=be.willy
-        #"Willy Radio - Live Radio": QMusicBelgiumSongChangeDetector(radio_name="Willy Radio - Live Radio", change_handler=playlist_builder.add_song, station_id="willy_be", base="api.willy.radio"),
-
-        # Extra
-        # "JOE - Live Radio": "be.joe",
-        # "Radio 1 - Live Radio": "be.r1",
-        # "Ketnet Hits - Live Radio": "be.ketnet",
-
-        # Requested
-        # "StuBru - De Tijdloze - Live Radio": "be.studiobrusseldetijdloze",
-        # "StuBru - Bruut - Live Radio": "be.studiobrusselbruut",
-
-        # "TOPradio - TOPretroarena - Live Radio": "be.topretroarena", # will have quite some incorrect ones because of multiple dj mix sets
-        # "TOPradio - TOPtechno - Live Radio": "be.topselection", # somehow empty https://onlineradiobox.com/be/topselection/playlist/?cs=be.topselection
-        # "TOPradio - Live Radio": "be.topradio", # also empty https://onlineradiobox.com/be/topradio/playlist/?cs=be.topselection
-
-        # Those do not have any content on onlineradiobox
-        # "StuBru - Ik Luister Belgisch - Live Radio": "be.studiobrusselikluisterbelgisch",
-        # "StuBru - UNTZ - Live Radio": "be.studiobrusseluntz",
-    }
-
-    # radios = {
-    #     "TST MNM - Live": QMusicBelgiumSongChangeDetector(radio_name="Qmusic - Live Radio", change_handler=playlist_builder.add_song),
-    # }
+    # Try to load radios from environment variable, fall back to default configuration
+    radios = parse_radios_from_env()
+    
+    if radios is None:
+        logging.info("No RADIOS environment variable found, using default configuration")
+        radios = {
+            "TST MNM - Live": "be.mnm",
+        }
 
     radio_playlist_builder = MultiRadioPlaylistBuilder(radios=radios, playlist_builder=playlist_builder)
     radio_playlist_builder.start()
