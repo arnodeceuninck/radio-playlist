@@ -42,6 +42,7 @@ def parse_radios_from_env():
         'be.ketnet': 'Ketnet Hits - Live Radio',
         'be.studiobrusseldetijdloze': 'StuBru - De Tijdloze - Live Radio',
         'be.studiobrusselbruut': 'StuBru - Bruut - Live Radio',
+        'be.vuurland': 'StuBru - Vuurland - Live Radio',
         'be.topretroarena': 'TOPradio - TOPretroarena - Live Radio',
         'be.topselection': 'TOPradio - TOPtechno - Live Radio',
         'be.topradio': 'TOPradio - Live Radio',
@@ -110,7 +111,7 @@ class MultiRadioPlaylistBuilder:
 if __name__ == '__main__':
     load_dotenv()  # Load environment variables from .env file
     load_cache_from_env()
-    
+
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     playlist_builder = SpotifyPlaylistBuilder()
