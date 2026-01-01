@@ -37,6 +37,7 @@ def parse_radios_from_env():
         'be.studiobrussel': 'Studio Brussel (StuBru) - Live Radio',
         'be.qmusic': 'Qmusic - Live Radio',
         'be.willy': 'Willy Radio - Live Radio',
+        'be.willyclassx': 'Willy Class X - Live Radio',
         'be.joe': 'JOE - Live Radio',
         'be.r1': 'Radio 1 - Live Radio',
         'be.ketnet': 'Ketnet Hits - Live Radio',
