@@ -49,6 +49,7 @@ def parse_radios_from_env():
         'be.topradio': 'TOPradio - Live Radio',
         'be.studiobrusselikluisterbelgisch': 'StuBru - Ik Luister Belgisch - Live Radio',
         'be.studiobrusseluntz': 'StuBru - UNTZ - Live Radio',
+        'be.stubrudejarennul': 'StuBru - De Jaren Nul - Live Radio'
     }
     
     for identifier in radio_identifiers:
