@@ -10,6 +10,7 @@ services:
       - postgres-db-volume:/var/lib/postgresql/data
     networks:
       - postgres-db-network
+      - observability_net
     env_file:
       - path: ./.env
         required: false
@@ -29,6 +30,7 @@ services:
         condition: service_healthy
     networks: 
       - postgres-db-network
+      - observability_net
     env_file:
       - path: ./.env
         required: false
@@ -46,6 +48,7 @@ services:
         condition: service_completed_successfully
     networks:
       - postgres-db-network
+      - observability_net
     env_file:
       - path: ./.env
         required: false
@@ -63,6 +66,7 @@ services:
         condition: service_completed_successfully
     networks:
       - postgres-db-network
+      - observability_net
     env_file:
       - path: ./.env.2
         required: false
@@ -74,4 +78,6 @@ volumes:
 networks:
     postgres-db-network:
         driver: bridge
+    observability_net:
+      external: true
 
