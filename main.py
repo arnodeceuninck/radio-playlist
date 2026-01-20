@@ -46,6 +46,8 @@ def parse_radios_from_env():
         'be.vuurland': 'StuBru - Vuurland - Live Radio',
         'be.topretroarena': 'TOPradio - TOPretroarena - Live Radio',
         'be.topselection': 'TOPradio - TOPtechno - Live Radio',
+        'be.topschaamteloos': 'TOPradio - TOPschaamteloos - Live Radio',
+        'be.topbam': 'TOPradio - TOPbam - Live Radio',
         'be.topradio': 'TOPradio - Live Radio',
         'be.studiobrusselikluisterbelgisch': 'StuBru - Ik Luister Belgisch - Live Radio',
         'be.studiobrusseluntz': 'StuBru - UNTZ - Live Radio',
