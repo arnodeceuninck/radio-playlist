@@ -3,18 +3,25 @@ import os
 import spotipy
 import spotipy.util
 import logging
+from collections import deque
+from threading import Lock
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from difflib import SequenceMatcher
 
 from Database import session, Playlist
 
 class SpotifyPlaylistBuilder:
+    SPOTIFY_REQUEST_MIN_INTERVAL_S = 15
+    SPOTIFY_REQUEST_WINDOW_S = 30
+
     def __init__(self, playlist_name = None, min_songs=50, max_songs=100):
         logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
         scope = 'playlist-modify-public'
         # set retries to 0 in an attempt to fix endless hanging problem: https://github.com/spotipy-dev/spotipy/issues/913
         logging.info("SpotifyPlaylistBuilder: Creating Spotify client")
         self.spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,  open_browser=False), retries=3) #client_credentials_manager=SpotifyClientCredentials())
+        self._spotify_request_lock = Lock()
+        self._spotify_request_times = deque()
 
         self.playlist = None
         logging.info("SpotifyPlaylistBuilder: Loading playlists")
@@ -44,7 +51,11 @@ class SpotifyPlaylistBuilder:
         playlists = {}
         for playlist in db_playlists:
             playlist_id = playlist.spotify_id
-            playlist_json = self.spotify.playlist(playlist_id)
+            playlist_json = self._spotify_request(
+                f"load playlist {playlist.name}",
+                self.spotify.playlist,
+                playlist_id,
+            )
             playlists[playlist.name] = playlist_json
 
         return playlists
@@ -62,7 +73,14 @@ class SpotifyPlaylistBuilder:
         description = "The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist."
         # get the username from the environment variable
         username = os.environ.get('SPOTIPY_CLIENT_USERNAME') # since this doesn't work: self.spotify.me()['id']
-        playlist = self.spotify.user_playlist_create(username, playlist_name, public=True, description=description)
+        playlist = self._spotify_request(
+            f"create playlist {playlist_name}",
+            self.spotify.user_playlist_create,
+            username,
+            playlist_name,
+            public=True,
+            description=description,
+        )
         self.add_playlist_in_db(playlist)
 
         self.playlist_map[playlist_name] = playlist
@@ -84,7 +102,12 @@ class SpotifyPlaylistBuilder:
         track_str = f"spotify:track:{track_id}"
 
         
-        self.spotify.playlist_add_items(self.playlist.spotify_str(), [track_str])
+        self._spotify_request(
+            f"add song {song} to playlist",
+            self.spotify.playlist_add_items,
+            self.playlist.spotify_str(),
+            [track_str],
+        )
         logging.info(f"SpotifyPlaylistBuilder: Song '{song}' added to playlist")
 
         self.playlist.song_count += 1
@@ -97,7 +120,12 @@ class SpotifyPlaylistBuilder:
         timestr = time.strftime("%Y-%m-%d %H:%M:%S")
         playlist_id = self.playlist.spotify_str()
         description = f"Last updated on {timestr}. The music of live radio, with the power of Spotify. The most recently played song is at the end of this playlist."
-        self.spotify.playlist_change_details(playlist_id, description=description)
+        self._spotify_request(
+            "update playlist description",
+            self.spotify.playlist_change_details,
+            playlist_id,
+            description=description,
+        )
         
 
 
@@ -109,7 +137,13 @@ class SpotifyPlaylistBuilder:
         
         # if not found in the database, search on Spotify
         # take three songs, search the best match
-        results = self.spotify.search(q=f"{song.title} {song.artist}", type='track', limit=3)
+        results = self._spotify_request(
+            f"search for track {song}",
+            self.spotify.search,
+            q=f"{song.title} {song.artist}",
+            type='track',
+            limit=3,
+        )
         tracks = results['tracks']['items']
         if len(tracks) == 0:
             return None
@@ -166,7 +200,12 @@ class SpotifyPlaylistBuilder:
         # self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(),
         #                                                            [{ "uri": songs, "positions":positions }])
         remove_list = list([{"uri": song, "positions": position} for song, position in zip(songs, positions)])
-        self.spotify.playlist_remove_specific_occurrences_of_items(self.playlist.spotify_str(), remove_list)
+        self._spotify_request(
+            "remove oldest songs from playlist",
+            self.spotify.playlist_remove_specific_occurrences_of_items,
+            self.playlist.spotify_str(),
+            remove_list,
+        )
         
         self.playlist.song_count = self.min_songs
         session.commit()
@@ -178,7 +217,12 @@ class SpotifyPlaylistBuilder:
             # tracks = playlist['tracks']['items']
 
             # Note that only the first 100 songs are returned if the limit is higher
-            playlist = self.spotify.playlist_items(playlist_id, limit=self.max_songs)
+            playlist = self._spotify_request(
+                "load playlist items for removal",
+                self.spotify.playlist_items,
+                playlist_id,
+                limit=self.max_songs,
+            )
             tracks = playlist['items']
 
             remove_count = len(tracks) - self.min_songs
@@ -190,3 +234,34 @@ class SpotifyPlaylistBuilder:
 
             return list([track['track']['id'] for track in tracks[:remove_count]]), list(range(0, remove_count))
         return [], []
+
+    def _spotify_request(self, request_name, request_func, *args, **kwargs):
+        with self._spotify_request_lock:
+            now = time.monotonic()
+            window_start = now - self.SPOTIFY_REQUEST_WINDOW_S
+
+            while self._spotify_request_times and self._spotify_request_times[0] < window_start:
+                self._spotify_request_times.popleft()
+
+            wait_for_interval_s = 0
+            if self._spotify_request_times:
+                elapsed_since_last_request = now - self._spotify_request_times[-1]
+                wait_for_interval_s = max(0, self.SPOTIFY_REQUEST_MIN_INTERVAL_S - elapsed_since_last_request)
+
+            wait_for_window_s = 0
+            if len(self._spotify_request_times) >= 2:
+                wait_for_window_s = max(0, self.SPOTIFY_REQUEST_WINDOW_S - (now - self._spotify_request_times[0]))
+
+            wait_for_s = max(wait_for_interval_s, wait_for_window_s)
+            if wait_for_s > 0:
+                logging.info(
+                    f"SpotifyPlaylistBuilder: Waiting {wait_for_s:.1f}s before {request_name} to respect Spotify pacing"
+                )
+                time.sleep(wait_for_s)
+                now = time.monotonic()
+                window_start = now - self.SPOTIFY_REQUEST_WINDOW_S
+                while self._spotify_request_times and self._spotify_request_times[0] < window_start:
+                    self._spotify_request_times.popleft()
+
+            self._spotify_request_times.append(now)
+            return request_func(*args, **kwargs)
