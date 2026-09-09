@@ -55,23 +55,23 @@ services:
     environment:
       - TZ=Europe/Amsterdam
 
-  radio-service-2:
-    build: .
-    restart: always
-    command: python main.py
-    depends_on:
-      postgres:
-        condition: service_started
-      alembic-db-upgrade:
-        condition: service_completed_successfully
-    networks:
-      - postgres-db-network
-      - observability_net
-    env_file:
-      - path: ./.env.2
-        required: false
-    environment:
-      - TZ=Europe/Amsterdam
+  # radio-service-2:
+  #   build: .
+  #   restart: always
+  #   command: python main.py
+  #   depends_on:
+  #     postgres:
+  #       condition: service_started
+  #     alembic-db-upgrade:
+  #       condition: service_completed_successfully
+  #   networks:
+  #     - postgres-db-network
+  #     - observability_net
+  #   env_file:
+  #     - path: ./.env.2
+  #       required: false
+  #   environment:
+  #     - TZ=Europe/Amsterdam
 
 volumes:
     postgres-db-volume:
