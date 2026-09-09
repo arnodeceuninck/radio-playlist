@@ -22,7 +22,9 @@ class SimpleSongPlay:
 
 
 class HtmlSongChangeDetector(SongChangeDetector):
-    def __init__(self, change_handler, radio_name, max_songs=10):
+    MAX_CATCH_UP_SONGS_PER_RADIO = 3
+
+    def __init__(self, change_handler, radio_name, max_songs=3):
         logging.info("Creating HtmlSongChangeDetector")
         super().__init__(change_handler)
         self.max_songs = max_songs
@@ -48,8 +50,10 @@ class HtmlSongChangeDetector(SongChangeDetector):
         new_songs = self.filter_new_songs(new_songs)
         logging.info(f"Found {len(new_songs)} new songs out of {og_count} songs")
         new_songs = sorted(new_songs, key=lambda song: song.start_time)
-        if len(new_songs) > self.max_songs:
-            new_songs = new_songs[:-self.max_songs]
+        catch_up_limit = min(self.max_songs, self.MAX_CATCH_UP_SONGS_PER_RADIO)
+        if len(new_songs) > catch_up_limit:
+            # Catch up with only the newest songs and ignore older missed ones.
+            new_songs = new_songs[-catch_up_limit:]
         for new_song in new_songs:
             logging.info(f"New song: {new_song.title} - {new_song.artist}")
             radio_song = self.create_db_radio_song(new_song)

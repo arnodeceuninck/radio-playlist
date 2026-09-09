@@ -16,6 +16,8 @@ radios = {
 }
 
 class VRTSongChangeDetector(SongChangeDetector):
+    MAX_CATCH_UP_SONGS_PER_RADIO = 3
+
     def __init__(self, radio, change_handler):
         super().__init__(change_handler)
         assert radio in radios, f"radio must be one of {radios.keys()}"
@@ -33,6 +35,8 @@ class VRTSongChangeDetector(SongChangeDetector):
         new_songs = self.query_songs()
         new_songs = self.filter_new_songs(new_songs)
         new_songs = sorted(new_songs, key=lambda song: datetime.strptime(song['startDate'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+        if len(new_songs) > self.MAX_CATCH_UP_SONGS_PER_RADIO:
+            new_songs = new_songs[-self.MAX_CATCH_UP_SONGS_PER_RADIO:]
         for new_song in new_songs:
             logging.info(f"New song: {new_song['title']} - {new_song['description']}")
             radio_song = self.create_db_radio_song(new_song)

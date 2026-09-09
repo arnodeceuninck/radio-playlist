@@ -77,7 +77,7 @@ class MultiRadioPlaylistBuilder:
                 song_change_detector = OnlineRadioBoxSongChangeDetector(
                     change_handler=playlist_builder.add_song,
                     radio_name=radio_id,
-                    max_songs=120
+                    max_songs=3
                 )
             else:
                 logging.info(f"Using provided SongChangeDetector for {radio_name}")
