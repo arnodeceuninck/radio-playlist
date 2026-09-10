@@ -11,9 +11,9 @@ from difflib import SequenceMatcher
 from Database import session, Playlist
 
 class SpotifyPlaylistBuilder:
-    SPOTIFY_REQUEST_MIN_INTERVAL_S = 1.0
+    SPOTIFY_REQUEST_MIN_INTERVAL_S = 10.0
     SPOTIFY_REQUEST_WINDOW_S = 30
-    SPOTIFY_MAX_REQUESTS_PER_WINDOW = 15
+    SPOTIFY_MAX_REQUESTS_PER_WINDOW = 5
 
     def __init__(self, playlist_name = None, min_songs=50, max_songs=100):
         logging.info(f"SpotifyPlaylistBuilder started for {playlist_name}")
